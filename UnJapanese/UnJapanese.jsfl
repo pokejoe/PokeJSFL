@@ -1,46 +1,39 @@
-/*
+ï»¿/*
 	UnJapanese
-	Translates Japanese objects to English, and replaces full-width alphanumerics with normal "half-width" characters.
-	“ú–{Œê‚É‘‚¢‚Ä‚ ‚é–¼‘O‚ğ‰pŒê‚Ü‚Å–|–ó‚µ‚ÄA‘SŠp‰p”š‚©‚ç”¼Šp‰p”š‚Ü‚Å•ÏŠ·‚µ‚Ü‚·B
+	Translates Japanese-named default objects to English, replaces full-width alphanumerics with normal "half-width" characters, and replaces all remaining unrecognized Japanese characters in object names with a numbered "JNAME" token.
+	æ—¥æœ¬èªã§ã®ãƒ‡ãƒ•ã‚©ãƒ¼ãƒ«ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è‹±è¨³ã—ã¦ã€å…¨è§’è‹±æ•°å­—ã‚’åŠè§’ã«ã—ã¦ã€æ®‹ã‚Šã®è¦‹åˆ†ã‘ã‚‰ã‚Œãªã„æ—¥æœ¬èªã‚’ã€ŒJNAMEã€+æ•°å­—ã«å¤‰æ›´ã—ã¾ã™ã€‚
 	Copyright Joseph Jacir 4 June 2013
-	v0.3
+	v1
 	
 	WARNINGS: 
-		Does not adjust Hiragana, Katakana, or Kanji.
-		
 		The Flash library structure uses a dash "-" to delineate folders in names. Because of the way JSFL accesses the name property, I cut off names before the dash, so do not use them in object names!
 		
 		If you undo immediately after running the script, it will undo the renaming successfully, but it will also flatten your library's directory structure. This is another result of the above ugliness. Better to save first and revert if necessary.
-		
-		If this script (or any with Japanese characters in it) does not run, check the encoding. Shift-JIS worked for me.
-		
-	Feature request:
-		Replace all instances of a name with Kanji, Hiragana, Katakana included with a new name like "KanjiObj"
 */
 
 fl.outputPanel.clear();
 
 var	words = new Object();		//a list of all Japanese terms used by Flash and their English equivalents
-	words.symbol_ = "ƒVƒ“ƒ{ƒ‹ ";
-	words.bitmap_ = "ƒrƒbƒgƒ}ƒbƒv ";
-	words.layer_ = "ƒŒƒCƒ„[ ";
-	words.button_ = "ƒ{ƒ^ƒ“ ";
-	words.graphic_ = "ƒOƒ‰ƒtƒBƒbƒN ";
-	words.tween_ = "ƒgƒDƒC[ƒ“ ";
-	words.movieClip_ = "ƒ€[ƒr[ƒNƒŠƒbƒv ";
-	words.untitled_ = "–¼Ì–¢İ’è";
-	words.folder_ = "ƒtƒHƒ‹ƒ_[ ";
-	words.scene_ = "ƒV[ƒ“ ";
-	words._copy = " ‚ÌƒRƒs[";
-	words.copy = "ƒRƒs[";
-	words.words = "Œ¾—t";
-	words.text = "ƒeƒLƒXƒg";
-	words.bg = "”wŒi";
+	words.symbol_ = "ã‚·ãƒ³ãƒœãƒ« ";
+	words.bitmap_ = "ãƒ“ãƒƒãƒˆãƒãƒƒãƒ— ";
+	words.layer_ = "ãƒ¬ã‚¤ãƒ¤ãƒ¼ ";
+	words.button_ = "ãƒœã‚¿ãƒ³ ";
+	words.graphic_ = "ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ ";
+	words.tween_ = "ãƒˆã‚¥ã‚¤ãƒ¼ãƒ³ ";
+	words.movieClip_ = "ãƒ ãƒ¼ãƒ“ãƒ¼ã‚¯ãƒªãƒƒãƒ— ";
+	words.untitled_ = "åç§°æœªè¨­å®š";
+	words.folder_ = "ãƒ•ã‚©ãƒ«ãƒ€ãƒ¼ ";
+	words.scene_ = "ã‚·ãƒ¼ãƒ³ ";
+	words._copy = " ã®ã‚³ãƒ”ãƒ¼";
+	words.copy = "ã‚³ãƒ”ãƒ¼";
+	words.words = "è¨€è‘‰";
+	words.text = "ãƒ†ã‚­ã‚¹ãƒˆ";
+	words.bg = "èƒŒæ™¯";
 	
 var jpatt = /([\u4e00-\u9fbf]|[\u3040-\u309f]|[\u30A0-\u30FF]|[\uFF56-\uFF9F])+/; //matches Kanji, Hiragana, Katakana, and half-width Katakana.
-var fwDiff = 0xFF10-0x30;	//The integer difference between the full- and half-width characters, i.e. ‚R to 3.
-var fwPatt = /[\uFF01-\uFF65]/;	//matches a single full-width character, e.g. ‚V or ‚b or •
-var teststr = "this is half width but the rest is full widthIúW”“•úVij–{C|D^‚O‚P‚Q‚R‚S‚T‚U‚V‚W‚XFGƒ„H—‚`‚a‚b‚c‚d‚e‚f‚g‚h‚i‚j‚k‚l‚m‚n‚o‚p‚q‚r‚s‚t‚u‚v‚w‚x‚ym_nOQM‚‚‚‚ƒ‚„‚…‚†‚‡‚ˆ‚‰‚Š‚‹‚Œ‚‚‚‚‚‘‚’‚“‚”‚•‚–‚—‚˜‚™‚š";
+var fwDiff = 0xFF10-0x30;	//The integer difference between the full- and half-width characters, i.e. ï¼“ to 3.
+var fwPatt = /[\uFF01-\uFF65]/;	//matches a single full-width character, e.g. ï¼— or ï¼£ or ï¼†
+var teststr = "this is half width but the rest is full widthï¼ï¼‚ï¼ƒï¼„ï¼…ï¼†ï¼‡ï¼ˆï¼‰ï¼Šï¼‹ï¼Œï¼ï¼ï¼ï¼ï¼‘ï¼’ï¼“ï¼”ï¼•ï¼–ï¼—ï¼˜ï¼™ï¼šï¼›ï¼œï¼ï¼ï¼Ÿï¼ ï¼¡ï¼¢ï¼£ï¼¤ï¼¥ï¼¦ï¼§ï¼¨ï¼©ï¼ªï¼«ï¼¬ï¼­ï¼®ï¼¯ï¼°ï¼±ï¼²ï¼³ï¼´ï¼µï¼¶ï¼·ï¼¸ï¼¹ï¼ºï¼»ï¼¼ï¼½ï¼¾ï¼¿ï½€ï½ï½‚ï½ƒï½„ï½…ï½†ï½‡ï½ˆï½‰ï½Šï½‹ï½Œï½ï½ï½ï½ï½‘ï½’ï½“ï½”ï½•ï½–ï½—ï½˜ï½™ï½š";
 var jnamecount = 0;		//Appended to Latin tokens for stray Japanese words, in order to prevent collisions.
 
 

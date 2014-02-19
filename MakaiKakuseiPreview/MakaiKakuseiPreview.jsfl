@@ -3,6 +3,9 @@
 	Automatically publishes HTML and SWF documents for the left and right views of a kakusei animation for Makai Gakuen. This script ASSUMES A CORRECTLY FORMATTED KAKUSEI FLA; it is for a very narrow purpose and useless otherwise. Puts the files, plus an index, in the parent directory, and interfaces with WinSCP to upload them to the preview server. WINDOWS ONLY
 	
 	Copyright 2013/11/29 Joseph Jacir
+	
+	TODO:
+		This was written before I made my file and upload management utilities. Integrate them!
 */
 
 fl.outputPanel.clear();

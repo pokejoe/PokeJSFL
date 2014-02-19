@@ -1,4 +1,6 @@
 /*
+	NOT YET READY FOR PRODUCTION USE
+
 	Unskew
 	Converts all skew keyframes to rotation keyframes
 	Copyright Joseph Jacir 30 May 2013

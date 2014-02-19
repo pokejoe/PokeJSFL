@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SOP_レイドバトル</title>
+
+<!-- スマホサイズにfit -->
+<meta id="viewport" name="viewport" content="width=320,initial-scale=1,minimum-scale=1,maximum-scale=1">
+<!--androidはこっち <meta name="viewport" content="initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" /> -->
+<!-- 電話番号認識の無効化-->
+<meta name="format-detection" content="telephone=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<style>
+	html {
+		background-color:#000000;
+		width: 100%;
+		height: 100%;
+		margin: 0 auto; padding: 0;
+		display: table;
+	}
+	body {
+		text-align: center;
+		width: 320px;
+		height: 480px;
+		margin: 0px;
+		overflow: hidden;
+	}
+	a{
+	    -webkit-touch-callout:none;
+	    -webkit-tap-highlight-color:rgba(0,0,0,0);
+	}
+	canvas {
+		vertical-align:middle;
+		border:0px;
+		margin:0px;
+	}
+	#loading {
+		position:absolute;
+		overflow:auto;
+		top:50%;
+		left:50%;
+		text-align:center;
+		height: 24px;
+		width: 24px;
+		margin-top:-12px;
+		margin-left:-12px;
+	}
+	#skillName {
+		position:absolute;
+		overflow:auto;
+		top:10px;
+		left:60px;
+		text-align:center;
+		height: 32px;
+		width: 204px;
+		z-index: 1100;
+	}
+	#mc_bg {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		margin:0px;
+		padding:0px;
+		width:320px;
+		height: 230px;
+		z-index: 50;
+	}
+	#mc_boss {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		margin:0px;
+		padding:0px;
+		width:320px;
+		height: 230px;
+		z-index: 200;
+	}
+	#mc_battleCtr {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		margin:0px;
+		padding:0px;
+		width:320px;
+		height: 230px;
+		z-index: 100;
+	}
+	#mc_skill {
+		position: absolute;
+		top: -5px;
+		left: -5px;
+		margin:0px;
+		padding:0px;
+		width:330px;
+		height: 240px;
+		z-index: 300;
+	}
+	#control {
+		position: absolute;
+		top: 250px;
+		left: 0px;
+		margin:0px;
+		padding:0px;
+		width:320px;
+		height: 200px;
+	}
+	
+</style>
+
+<!--　createJS　-->
+<script src="libs/easeljs-0.6.0.min.js"></script>
+<script src="libs/tweenjs-0.4.0.min.js"></script>
+<script src="libs/movieclip-0.6.0.min.js"></script>
+<script src="libs/preloadjs-0.3.0.min.js"></script>
+
+<!--　アバターシステム/レイドバトル制御/武器モーション/ボス/背景　-->
+<script src="avater.js"></script>
+<script src="raidBattle.js"></script>
+
+<script src="weapon/axAnime.js"></script>
+<script src="weapon/bladeAnime.js"></script>
+<script src="weapon/bookAnime.js"></script>
+<script src="weapon/bowAnime.js"></script>
+<script src="weapon/caneAnime.js"></script>
+<script src="weapon/gunAnime.js"></script>
+<script src="weapon/hammerAnime.js"></script>
+<script src="weapon/knuckleAnime.js"></script>
+<script src="weapon/short_swordAnime.js"></script>
+<script src="weapon/spearAnime.js"></script>
+<script src="weapon/swordAnime.js"></script>
+<script src="weapon/throwingAnime.js"></script>
+<script src="weapon/whipAnime.js"></script>
+
+<script src="data_boss/boss.js"></script>
+<script src="data_bg/bg.js"></script>
+
+<!--　スキル関連 -->
+<script src="data_skill/id_SKN/skillStageSKN.js"></script>
+<script src="data_skill/id_SKN/skillAnimeSKN.js"></script>
+
+
+<script>
+//アバター周り
+MainAvaterConfig =
+{
+	"eyebrowId"			: "eyebrow_1",
+	"eyeId"				: "eye_1",
+	"hairId"			: "hair_1",
+	"bodyId"			: "body_1",
+	"armorId"			: "armor_1",
+	"leftWeponId"		: "weapon_1",
+	"rightWeponId"		: null,
+	"helmetId"			: null,
+	"faceAcceId"		: "faceAcce_1",
+	"makeId"			: "make_1",
+	"pixelRate"			: 1,
+	"sizeRate"			: 0.5,
+	"animationData"		: swordAnime,
+	"isRightWeponUpper"	: true,
+	"isShadow"			: true,
+	"efPath"			: "images/ef/",
+	"is2SwordStyle"		: false
+}
+
+//スキル用のアバター
+SkillAvaterConfig = 
+{
+	"eyebrowId"			: "eyebrow_1",
+	"eyeId"				: "eye_1",
+	"hairId"			: "hair_1",
+	"bodyId"			: "body_1",
+	"armorId"			: "armor_1",
+	"leftWeponId"		: "weapon_skill_L",
+	"rightWeponId"		: "weapon_skill_R",
+	"helmetId"			: null,
+	"faceAcceId"		: "faceAcce_1",
+	"makeId"			: "make_2",
+	"pixelRate"			: 1,
+	"sizeRate"			: 0.5,
+	"animationData"		: skillAnimeSKN,
+	"isRightWeponUpper"	: true,
+	"isShadow"			: true,
+	"efPath"			: "images/ef/",
+	"is2SwordStyle"		: false
+}
+
+//キャンバス管理
+var CvMain, CvBoss, CvSkill, CvBG;
+var StMain, StBoss, StSkill, StBG;
+var exportRoot, rootBoss, rootSkill, rootBG;
+images = images||{};
+
+function init() {
+
+	createjs.DisplayObject.prototype.snapToPixel = true;
+	
+	//Canvas
+	CvBG	= document.getElementById("CvBG");
+	CvBoss	= document.getElementById("CvBoss");
+	CvSkill	= document.getElementById("CvSkill");
+	CvMain	= document.getElementById("CvMain");
+	
+	//画像パス
+	var imgPathAvatar	= "images/user/";				//アバター関連の画像
+	var imgPathBoss		= "images/boss/";				//レイドボス関連の画像
+	var imgPathSkill	= "images/skill/id_SKN/";		//スキルで使う画像
+	var imgPathCommon	= "images/common/";				//共通系の画像
+	var imgPathBg		= "images/bg/";					//背景画像
+	
+	var manifest = [
+		//------------------------------------------アバター関連↓↓↓
+		{src:imgPathAvatar + "armor_1.png", id:"armor_1"},
+		{src:imgPathAvatar + "body_1.png", id:"body_1"},
+		{src:imgPathAvatar + "eye_1.png", id:"eye_1"},
+		{src:imgPathAvatar + "eyebrow_1.png", id:"eyebrow_1"},
+		{src:imgPathAvatar + "hair_1.png", id:"hair_1"},
+		{src:imgPathAvatar + "weapon_1.png", id:"weapon_1"},
+//		{src:imgPathAvatar + "weapon_111_1.png", id:"weapon_skill_L"},
+//		{src:imgPathAvatar + "weapon_111_2.png", id:"weapon_skill_R"},
+		{src:imgPathAvatar + "shadow.png", id:"shadow"},
+		//メイクと顔アクセサリー
+		{src:imgPathAvatar + "make_1.png", id:"make_1"},
+		{src:imgPathAvatar + "make_2.png", id:"make_2"},
+		{src:imgPathAvatar + "faceAcce_1.png", id:"faceAcce_1"},
+		//------------------------------------------アバター関連↑↑↑
+		
+		//スキルのエフェクト
+		SKILLIMAGES_REPLACE
+		
+		//ボス
+		//--------------------------------
+		{src:imgPathBoss + "KEN_armL.png", id:"KEN_armL"},
+		{src:imgPathBoss + "KEN_armR.png", id:"KEN_armR"},
+		{src:imgPathBoss + "KEN_arrow.png", id:"KEN_arrow"},
+		{src:imgPathBoss + "KEN_body.png", id:"KEN_body"},
+		{src:imgPathBoss + "KEN_body2.png", id:"KEN_body2"},
+		{src:imgPathBoss + "KEN_eff_ball.png", id:"KEN_eff_ball"},
+		{src:imgPathBoss + "KEN_eff_en.png", id:"KEN_eff_en"},
+		{src:imgPathBoss + "KEN_eff_hit.png", id:"KEN_eff_hit"},
+		{src:imgPathBoss + "KEN_eff_line.png", id:"KEN_eff_line"},
+		{src:imgPathBoss + "KEN_eff_lineAura.png", id:"KEN_eff_lineAura"},
+		{src:imgPathBoss + "KEN_eff_shot.png", id:"KEN_eff_shot"},
+		{src:imgPathBoss + "KEN_eff_windAura.png", id:"KEN_eff_windAura"},
+		{src:imgPathBoss + "KEN_head.png", id:"KEN_head"},
+		{src:imgPathBoss + "KEN_leg1.png", id:"KEN_leg1"},
+		{src:imgPathBoss + "KEN_leg2.png", id:"KEN_leg2"},
+		{src:imgPathBoss + "KEN_tail.png", id:"KEN_tail"},
+		{src:imgPathBoss + "shadow_boss.png", id:"shadow_boss"},
+		//軽量版↓
+		//{src:imgPathBoss + "KEN_all.png", id:"KEN_all"},
+		
+		//背景
+		{src:imgPathBg + "test_bg_s.png", id:"test_bg_s"},
+		{src:imgPathBg + "test_bg_m.png", id:"test_bg_m"},
+		{src:imgPathBg + "test_bg_l.png", id:"test_bg_l"},
+
+		//共通系
+		{src:imgPathCommon + "text_win.png", id:"text_win"},			//勝敗結果「win」
+		{src:imgPathCommon + "text_lose.png", id:"text_lose"},			//勝敗結果「lose」
+		{src:imgPathCommon + "text_joblvup.png", id:"text_joblvup"},	//ジョブレベルアップの文字画像
+		{src:imgPathCommon + "miss.png", id:"miss"},					//回避時に表示するMISS
+		{src:imgPathCommon + "eff_alive.png", id:"eff_alive"},			//回復エフェクト↓
+		{src:imgPathCommon + "eff_heal_w.png", id:"eff_heal_w"},
+		{src:imgPathCommon + "eff_status_poison1.png", id:"eff_status_poison1"},	//ステータス異常_毒
+		{src:imgPathCommon + "eff_status_poison2.png", id:"eff_status_poison2"},
+		/*
+		//たぶん属性別のエフェクト使ってない
+		{src:imgPathCommon + "eff_hitAttri1_4.png", id:"eff_hitAttri1_4"},			//属性別の被弾エフェクト
+		{src:imgPathCommon + "eff_hitAttri2_4.png", id:"eff_hitAttri2_4"},
+		{src:imgPathCommon + "eff_hitAttri3_4.png", id:"eff_hitAttri3_4"},
+		{src:imgPathCommon + "eff_hitAttri4_4.png", id:"eff_hitAttri4_4"},
+		{src:imgPathCommon + "eff_hitAttri5_4.png", id:"eff_hitAttri5_4"},
+		{src:imgPathCommon + "eff_hitAttri6_4.png", id:"eff_hitAttri6_4"},
+		{src:imgPathCommon + "eff_hitAttri1_3.png", id:"eff_hitAttri1_3"},
+		{src:imgPathCommon + "eff_hitAttri2_3.png", id:"eff_hitAttri2_3"},
+		{src:imgPathCommon + "eff_hitAttri3_3.png", id:"eff_hitAttri3_3"},
+		{src:imgPathCommon + "eff_hitAttri4_3.png", id:"eff_hitAttri4_3"},
+		{src:imgPathCommon + "eff_hitAttri5_3.png", id:"eff_hitAttri5_3"},
+		{src:imgPathCommon + "eff_hitAttri6_3.png", id:"eff_hitAttri6_3"},
+		{src:imgPathCommon + "eff_hitAttri1_2.png", id:"eff_hitAttri1_2"},
+		{src:imgPathCommon + "eff_hitAttri2_2.png", id:"eff_hitAttri2_2"},
+		{src:imgPathCommon + "eff_hitAttri3_2.png", id:"eff_hitAttri3_2"},
+		{src:imgPathCommon + "eff_hitAttri4_2.png", id:"eff_hitAttri4_2"},
+		{src:imgPathCommon + "eff_hitAttri5_2.png", id:"eff_hitAttri5_2"},
+		{src:imgPathCommon + "eff_hitAttri6_2.png", id:"eff_hitAttri6_2"},
+		{src:imgPathCommon + "eff_hitAttri1_1.png", id:"eff_hitAttri1_1"},
+		{src:imgPathCommon + "eff_hitAttri2_1.png", id:"eff_hitAttri2_1"},
+		{src:imgPathCommon + "eff_hitAttri3_1.png", id:"eff_hitAttri3_1"},
+		{src:imgPathCommon + "eff_hitAttri4_1.png", id:"eff_hitAttri4_1"},
+		{src:imgPathCommon + "eff_hitAttri5_1.png", id:"eff_hitAttri5_1"},
+		{src:imgPathCommon + "eff_hitAttri6_1.png", id:"eff_hitAttri6_1"},
+		*/
+		{src:imgPathCommon + "dmgNum0.png", id:"dmgNum0"},							//ダメージの数値
+		{src:imgPathCommon + "dmgNum1.png", id:"dmgNum1"},
+		{src:imgPathCommon + "dmgNum2.png", id:"dmgNum2"},
+		{src:imgPathCommon + "dmgNum3.png", id:"dmgNum3"},
+		{src:imgPathCommon + "dmgNum4.png", id:"dmgNum4"},
+		{src:imgPathCommon + "dmgNum5.png", id:"dmgNum5"},
+		{src:imgPathCommon + "dmgNum6.png", id:"dmgNum6"},
+		{src:imgPathCommon + "dmgNum7.png", id:"dmgNum7"},
+		{src:imgPathCommon + "dmgNum8.png", id:"dmgNum8"},
+		{src:imgPathCommon + "dmgNum9.png", id:"dmgNum9"},
+		{src:imgPathCommon + "recNum0.png", id:"recNum0"},							//回復の数値
+		{src:imgPathCommon + "recNum1.png", id:"recNum1"},
+		{src:imgPathCommon + "recNum2.png", id:"recNum2"},
+		{src:imgPathCommon + "recNum3.png", id:"recNum3"},
+		{src:imgPathCommon + "recNum4.png", id:"recNum4"},
+		{src:imgPathCommon + "recNum5.png", id:"recNum5"},
+		{src:imgPathCommon + "recNum6.png", id:"recNum6"},
+		{src:imgPathCommon + "recNum7.png", id:"recNum7"},
+		{src:imgPathCommon + "recNum8.png", id:"recNum8"},
+		{src:imgPathCommon + "recNum9.png", id:"recNum9"},
+		{src:imgPathCommon + "eff_status_confu1.png", id:"eff_status_confu1"},		//ステータス異常_混乱
+		{src:imgPathCommon + "cutin_counter.jpg", id:"cutin_counter"},				//カットイン画像_カウンター
+		{src:imgPathCommon + "cutin_scapegoat.jpg", id:"cutin_scapegoat"},			//カットイン画像_スケープゴート
+		{src:imgPathCommon + "skill45_eff1.png", id:"skill45_eff1"},				//スケープゴートの演出
+		{src:imgPathCommon + "skill45_eff2.png", id:"skill45_eff2"},
+		{src:imgPathCommon + "skill45_eff3.png", id:"skill45_eff3"},
+		{src:imgPathCommon + "skill45_eff4.png", id:"skill45_eff4"},
+		{src:imgPathCommon + "eff_bossDie1.png", id:"eff_bossDie1"},
+		{src:imgPathCommon + "eff_bossDie3.png", id:"eff_bossDie3"},
+		{src:imgPathCommon + "eff_bossDie4.png", id:"eff_bossDie4"},
+		{src:imgPathCommon + "eff_bossDie5.png", id:"eff_bossDie5"}
+
+	];
+	
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload", handleFileLoad);
+	loader.addEventListener("complete", handleComplete);
+	loader.loadManifest(manifest);
+	
+	//スキル隠す
+	document.getElementById('mc_skill').style.visibility="hidden";
+	
+	//スキル名のウィンドウ隠す
+	skillNameWindowDisp(false);
+	
+	//initTouch();
+}
+
+function handleFileLoad(evt) {
+	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }
+}
+
+function handleComplete() {
+
+	//名前空間
+	window.sop = window.sop || {};
+	sop.raidBattle = {};
+
+	//==================================================================▼▼▼▼▼ＩＦ
+	//生存フラグ
+	sop.raidBattle.userAliveFlg	= true;
+	sop.raidBattle.bossAliveFlg	= true;
+	sop.raidBattle.resultID		= "";
+	//==================================================================▲▲▲▲▲ＩＦ
+	
+	//ローディング
+	document.getElementById('loading').style.visibility="hidden";
+	document.getElementById('loading').style.display="none";
+	
+	//描画関連の初期化
+	//-----------------------------------------↓↓↓↓↓
+	//背景
+	rootBG = new lib.bg();
+	StBG = new createjs.Stage(CvBG);
+	StBG.snapToPixelEnabled = true;
+	StBG.addChild(rootBG);
+	StBG.update();
+
+	//ボス
+	rootBoss = new lib.boss();
+	StBoss = new createjs.Stage(CvBoss);
+	StBoss.snapToPixelEnabled = true;
+	StBoss.addChild(rootBoss);
+	StBoss.update();
+
+	//共通
+	exportRoot = new lib.raidBattle();
+	StMain = new createjs.Stage(CvMain);
+	StMain.snapToPixelEnabled = true;
+	StMain.addChild(exportRoot);
+	StMain.update();
+
+	//スキルを描画
+	rootSkill = new lib.skillStageSKN();
+	StSkill = new createjs.Stage(CvSkill);
+	StSkill.snapToPixelEnabled = true;
+	StSkill.addChild(rootSkill);
+	StSkill.update();
+	
+	//▼androidはコメントアウト 画質を上げる
+	defultWidth  = 320;
+	defultHeight  = 230;
+	if(typeof window.devicePixelRatio === "undefined"){
+		devicePixelRatio = 1;
+	}else{
+		devicePixelRatio = window.devicePixelRatio;
+	}
+	exportRoot._updateMousePosition = function (b, a) {
+	var c = this.CvMain;
+	do b -= c.offsetLeft, a -= c.offsetTop;
+	while (c = c.offsetParent);
+	if (this.mouseInBounds = b >= 0 && a >= 0 && b < this.CvMain.width && a < this.CvMain.height)
+		this.mouseX = b * devicePixelRatio, this.mouseY = a * devicePixelRatio
+	};
+	exportRoot.setTransform(0,0,devicePixelRatio,devicePixelRatio);
+	
+	CvMain.style.width	= "320px";
+	CvMain.style.height	= "230px";
+	CvMain.width = 320 * devicePixelRatio;
+	CvMain.height = 230 * devicePixelRatio;
+	//▲androidはコメントアウト
+
+	createjs.Ticker.setFPS(15);
+	createjs.Ticker.addEventListener("tick", StBG);
+	createjs.Ticker.addEventListener("tick", StBoss);
+	createjs.Ticker.addEventListener("tick", StMain);
+	createjs.Ticker.addEventListener("tick", StSkill);
+	//-----------------------------------------↑↑↑↑↑
+}
+
+function initTouch(){
+	document.addEventListener("touchmove", touchHandler, false);
+	document.addEventListener("touchcancel", touchHandler, false);
+	
+	//画面をスライドさせないようにする
+	function touchHandler(event) {
+		event.preventDefault();
+	}
+}
+
+//===================================================================▼▼▼▼▼テスト用
+//---------------------------------------------------------------
+//	ユーザー側の演出
+//---------------------------------------------------------------
+//通常攻撃（ユーザーが攻撃　⇒　ボスが攻撃）
+function atk_normal()
+{
+	var setData	= [];
+
+	//通常攻撃
+	setData[0]	= [];
+	setData[0]["animeID"]		= "attack";
+	setData[0]["actionTeam"]	= 1;
+	setData[0]["damage"]		= 1280;
+	//setData[0]["boss_death"]	= true;
+	//setData[0]["attributeID"]	= 1;
+	
+	setData[1]	= [];
+	setData[1]["animeID"]		= "attack";
+	setData[1]["actionTeam"]	= 2;
+	setData[1]["damage"]		= 37564;
+	setData[1]["bossAtkID"]		= 1;
+	//setData[1]["user_death"]	= true;
+
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+	
+	/*
+	//特殊なコード一覧
+	setData[0]["attributeID"]		= 2;		//属性効果の被弾エフェクト(0=無し、1=土、2=水、3=火、4=風、5=魔、6=聖)
+	setData[0]["boss_death"]		= true;		//ボスが死んだフラグ
+	setData[0]["user_death"]		= true;		//ユーザーが死んだフラグ
+	*/
+	
+}
+
+//通常攻撃（ユーザーが攻撃　⇒　ボス死亡）
+function atk_normal_death()
+{
+	var setData	= [];
+
+	//通常攻撃
+	setData[0]	= [];
+	setData[0]["animeID"]		= "attack";
+	setData[0]["actionTeam"]	= 1;
+	setData[0]["damage"]		= 1280;
+	setData[0]["boss_death"]	= true;
+
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+}
+
+//ＨＰ回復
+function heal()
+{
+	//演出データ作成
+	var setData	= [];
+	setData[0]	= [];
+	setData[0]["animeID"]		= "heal";
+	setData[0]["actionTeam"]	= 1;
+	setData[0]["damage"]		= 1234;		//回復値
+	
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+}
+
+//ステータス異常回復
+function cure()
+{
+	//演出データ作成
+	var setData	= [];
+	setData[0]	= [];
+	setData[0]["animeID"]		= "cure";
+	setData[0]["actionTeam"]	= 1;
+	
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+}
+
+//復活
+function alive()
+{
+	//演出データ作成
+	var setData	= [];
+	setData[0]	= [];
+	setData[0]["animeID"]		= "resurrection";
+	setData[0]["actionTeam"]	= 1;
+	setData[0]["damage"]		= 500;		//回復値
+	
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+}
+
+//ジョブレベルアップ
+function test_jobLvUP()
+{
+	//演出データ作成
+	var setData	= [];
+
+	//攻撃データ作成
+	setData[0]	= [];
+	setData[0]["animeID"]		= "jobLvUP";
+
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+}
+
+//ステータス異常のダメージ（毒or混乱）
+function test_sickDamage(sickID, tgID)
+{
+	//演出データ作成
+	var setData	= [];
+	setData[0]	= [];
+	setData[0]["animeID"]		= "damage";
+	setData[0]["sickID"]		= sickID;		//ステータス異常の種別。1=毒、2=混乱
+	setData[0]["actionTeam"]	= tgID;			//追加ダメージの対象。1=ユーザー、2=ボス
+	setData[0]["damage"]		= 80;
+	
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+}
+
+//---------------------------------------------------------------
+//	ボス側の演出
+//---------------------------------------------------------------
+//ボスの攻撃アクション
+function test_bossAtk(atkID)
+{
+	//演出データ作成（ダメージとか）
+	var setData	= [];
+	setData[0]	= [];
+	setData[0]["animeID"]		= "attack";
+	setData[0]["actionTeam"]	= 2;
+	setData[0]["damage"]		= 120;
+	setData[0]["bossAtkID"]		= atkID;		//ボスの攻撃種類。1=噛みつき、2=体当たり、3=火炎ブレス
+	//setData[0]["avoid"]			= true;
+	
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+}
+
+//---------------------------------------------------------------
+//	スキル関連
+//---------------------------------------------------------------
+//スキル発動
+function skillStart()
+{
+	//演出データ作成
+	var setData	= [];
+	
+	//スキル発動
+	setData[0]	= [];
+	setData[0]["animeID"]		= "skill";
+	setData[0]["actionTeam"]	= 1;
+	setData[0]["damage"]		= 37564;
+	//setData[0]["boss_death"]	= true;
+
+	//スキル発動
+	setData[1]	= [];
+	setData[1]["animeID"]		= "attack";
+	setData[1]["actionTeam"]	= 2;
+	setData[1]["bossAtkID"]		= 1;
+	setData[1]["damage"]		= 555;
+
+	//★スキル用にIF追加
+	setData[0]["extra"] = [];
+	setData[0]["extra"]["spFlg"] = 1;
+	
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+	
+	/*
+	//---------------------▼▼▼▼▼skillID45 スケープゴートの場合
+	var setData	= [];
+	
+	//スキル発動　※敵にダメージは与えない
+	setData[0]	= [];
+	setData[0]["animeID"]		= "skill";
+	setData[0]["actionTeam"]	= 1;
+	
+	//敵の攻撃
+	setData[1]	= [];
+	setData[1]["animeID"]		= "attack";
+	setData[1]["actionTeam"]	= 2;
+	setData[1]["bossAtkID"]		= 1;
+	setData[1]["avoid"]			= true;				//スキル効果が発動して回避成功
+	setData[1]["damage"]		= 0;				//スキル効果が発動して回避するので、ダメージは0
+	setData[1]["extra"]			= [];				//特殊演出用のオブジェクト
+	setData[1]["extra"]["cutin_scapegoat"] = true;	//スケープゴートのカットインを出す（※カットインはこのターンで自動で閉じる）
+	
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+	//---------------------▲▲▲▲▲skillID45 スケープゴートの場合
+	*/
+	
+	/*
+	//---------------------▼▼▼▼▼skillID97 カウンターの場合
+	var setData	= [];
+	
+	//スキル発動　※敵にダメージは与えない
+	setData[0]	= [];
+	setData[0]["animeID"]		= "skill";
+	setData[0]["actionTeam"]	= 1;
+	
+	//敵の攻撃
+	setData[1]	= [];
+	setData[1]["animeID"]		= "attack";
+	setData[1]["actionTeam"]	= 2;
+	setData[1]["bossAtkID"]		= 1;
+	setData[1]["avoid"]			= true;				//スキル効果が発動して回避成功
+	setData[1]["damage"]		= 0;				//スキル効果が発動して回避するので、ダメージは0
+	setData[1]["extra"]			= [];				//特殊演出用のオブジェクト
+	setData[1]["extra"]["cutin_counter"] = true;	//カウンターのカットインを出す（※カットインは自動では閉じない）
+	
+	//スキル効果で、避けた後に攻撃をし返す
+	setData[2]	= [];
+	setData[2]["animeID"]		= "attack";
+	setData[2]["actionTeam"]	= 1;
+	setData[2]["damage"]		= 1250;
+	setData[2]["extra"]			= [];
+	setData[2]["extra"]["cutin_counter"] = false;	//このターンでカウンターのカットインを閉じる事を明示
+	
+	//演出GO！
+	sop.raidBattle.gameMaster.animePlay(setData);
+	//---------------------▲▲▲▲▲skillID97 カウンターの場合
+	*/
+}
+
+//表示の調整　スキル発動時
+function skillDispAdjust_start()
+{
+	//通常アバター隠す
+	exportRoot.mc_user.visible = false;
+	
+	//スキルを表示
+	document.getElementById('mc_skill').style.visibility="visible";
+}
+
+//表示の調整　スキル終了時
+function skillDispAdjust_end()
+{
+	//通常アバター表示
+	exportRoot.mc_user.visible = true;
+
+	//スキル隠す
+	document.getElementById('mc_skill').style.visibility="hidden";
+}
+
+//スキル名称のウィンドウの表示/非表示
+function skillNameWindowDisp(flg)
+{
+	if(flg)
+	{
+		document.getElementById('skillName').style.visibility="visible";
+	}
+	else
+	{
+		document.getElementById('skillName').style.visibility="hidden";
+	}
+}
+
+//---------------------------------▼▼▼▼▼ポップアップ関連
+//ポップアップ出す
+function show_up_popupwindow()
+{
+	console.log("ポップアップ出すよ");
+}
+
+//ポップアップ閉じる
+function on_hide_popupwindow()
+{
+	console.log("ポップアップ閉じる");
+}
+
+//ポップアップ表示して停止中の演出を再開する
+function restart_popupwindow()
+{
+	sop.raidBattle.gameMaster.userSkill_restart_popupWindow();
+}
+//---------------------------------▲▲▲▲▲ポップアップ関連
+
+//---------------------------------▼▼▼▼▼背景関連
+function test_bg_move()
+{
+	//背景を左へ　※スキル発動時
+	rootBG.bg_manager.disp_left();
+}
+
+function test_bg_moveBack()
+{
+	//背景を右へ戻す　※スキル発動後
+	rootBG.bg_manager.disp_leftBack();
+}
+
+function test_bg_fadeIN_black()
+{
+	//背景を黒くする
+	rootBG.bg_manager.fadeIN_black();
+}
+
+function test_bg_fadeOUT_black()
+{
+	//背景黒を戻す
+	rootBG.bg_manager.fadeOUT_black();
+}
+
+function test_bg_fadeIN_white()
+{
+	//背景を白くする
+	rootBG.bg_manager.fadeIN_white();
+}
+
+function test_bg_fadeOUT_white()
+{
+	//背景白を戻す
+	rootBG.bg_manager.fadeOUT_white();
+}
+//---------------------------------▲▲▲▲▲背景関連
+
+//---------------------------------▼▼▼▼▼ボスの移動
+function bossMoveCenter(mID)
+{
+	if(mID == 1){ rootBoss.gotoAndPlay("center"); }
+	else if(mID == 2){ rootBoss.gotoAndPlay("back"); }
+}
+
+function bossUpCenter(flg)
+{
+	//flgがtrueかfalseで滞空を判断
+	rootBoss.bossAnime.ageCenter(flg);
+}
+
+function bossUpCenterDown()
+{
+	rootBoss.bossAnime.ageCenterBack();
+}
+
+function bossUpRight(flg)
+{
+	//flgがtrueかfalseで滞空を判断
+	rootBoss.bossAnime.ageRight(flg);
+}
+
+function bossUpRightDown()
+{
+	rootBoss.bossAnime.ageRightBack();
+}
+//---------------------------------▲▲▲▲▲ボスの移動
+
+//---------------------------------------------------------------
+//	その他
+//---------------------------------------------------------------
+//勝敗結果出す
+function resultWindowON(rID)
+{
+	if(rID == "win")
+	{
+		sop.raidBattle.resultWindow.dispON("win");
+		rootBoss.mc_boss.visible = false;
+	}
+	else if(rID == "lose")
+	{
+		sop.raidBattle.resultWindow.dispON("lose");
+		rootBoss.mc_boss.visible = false;
+	}
+	else
+	{
+		sop.raidBattle.resultWindow.dispOFF();
+	}
+}
+
+//武器とモーションを変える
+function changeWeapon(weaponID)
+{
+	//武器
+	var weaponData = {
+					sword: [swordAnime, "wepon_1"],
+					ax: [axAnime, "wepon_5"],
+					bow: [bowAnime, "wepon_10"],
+					};
+
+	console.log("武器を[" + weaponID + "]に変更");
+	
+	var tgMC = exporRoot.mc_user;
+	
+	//モーション変更
+	tgMC.UserAvaterConfig.animationData	= weaponData[weaponID][0];				//モーションデータ更新
+	tgMC.motionDistanceID				= weaponData[weaponID][0].motion;		//モーションデータ内の武器別IDを更新
+	tgMC.UserAvater.preLoadEffect();											//エフェクト更新
+	
+	//武器変更
+	tgMC.UserAvater.Config.leftWeponId = weaponData[weaponID][1];
+	tgMC.UserAvater.deleteLeftWepon();
+	tgMC.UserAvater.setLeftWepon();
+}
+
+//深度の入れ替え
+function ChangeZindex(CvName, ChangeId)
+{
+	//document.getElementById(CvName).style.zIndex = ChangeId;
+}
+
+//アニメ完了しました（＝ボタン押下を受け付けます）//★攻撃が完了したら実行される
+avaterEvent = new Array();
+avaterEvent["endAnimeFnc"] = function()
+{
+	//攻撃モーションのフラグ
+	exportRoot.mc_user.AtkMotionEndFlg = true;
+}
+
+function animeEnd()
+{
+	console.log("アニメ完了しました。ボタン押下受け付けます");
+}
+
+//===================================================================▲▲▲▲▲テスト用
+
+
+</script>
+</head>
+
+<body onload="init();" style="background-color:#000000">
+	
+	<div id="mc_bg"><canvas id="CvBG" width="320" height="230"></canvas></div>
+	<div id="mc_boss"><canvas id="CvBoss" width="320" height="230"></canvas></div>
+	<div id="mc_skill"><canvas id="CvSkill" width="330" height="240"></canvas></div>
+	<div id="mc_battleCtr"><canvas id="CvMain" width="320" height="230"></canvas></div>
+	
+	<div id="skillName"><img src='images/common/skillWindow_scapegoat.png' /></div>
+	<div id="loading"><img src='images/common/loader.gif' /></div>
+
+
+	<!--　動作確認用のボタン　-->
+	<div id="control">
+		<!--
+		<span style="color:#ffffff">--- ユーザーのアクション ---</span><br />
+		<input type="button" value="ＨＰ回復" onclick="heal();"/><input type="button" value="気絶回復" onclick="alive();"/><input type="button" value="ジョブレベルアップ" onclick="test_jobLvUP();"/><br />
+		<input type="button" value="異常回復" onclick="cure();"/><input type="button" value="毒" onclick="test_sickDamage(1, 1);"/><input type="button" value="混乱" onclick="test_sickDamage(2, 1);"/><br />
+		<input type="button" value="攻撃３" onclick="test_bossAtk(3);"/>
+
+		-->
+
+		<span style="color:#ffffff">--- スキル ---</span><br />
+		<input type="button" value="スキル発動" onclick="skillStart();"/><br />
+		<input type="button" value="ポップアップ閉じる" onclick="restart_popupwindow();"/><br />
+		<span style="color:#ffffff">--- ボスの攻撃モーション ---</span><br />
+		<input type="button" value="攻撃１" onclick="test_bossAtk(1);"/><input type="button" value="攻撃２" onclick="test_bossAtk(2);"/><br />
+		<input type="button" value="毒" onclick="test_sickDamage(1, 2);"/><input type="button" value="混乱" onclick="test_sickDamage(2, 2);"/><br />
+		<span style="color:#ffffff">--- 被弾チェック ---</span><br />
+		<input type="button" value="ユーザー攻撃→反撃" onclick="atk_normal();"/><br />
+		<input type="button" value="ユーザー攻撃→死亡" onclick="atk_normal_death();"/><br />
+	</div>
+
+</body>
+</html>
+
+

@@ -3,10 +3,10 @@
 	Takes selected library items and puts them each on a new layer, properly named, with the first frame at the current time.
 	各の選択されたライブラリーアイテムを正しい名前の新しいレイヤーの現在のフレームに置きます。
 	Copyright Joseph Jacir, 25 June 2013
-	v2.1
+	v2.2
 */
 
-//fl.outputPanel.clear();
+fl.outputPanel.clear();
 
 var tim = fl.getDocumentDOM().getTimeline();
 var now = tim.currentFrame;
@@ -23,7 +23,7 @@ if(!tim.libraryItem) {
 }
 
 
-for (var i in sel) {
+for (i = sel.length-1; i >= 0; i--) {	//Needs to be looped backward to get the same order as in the library.
 	if (sel[i].itemType != "folder" && sel[i].itemType != "undefined") {
 		var namecopy = sel[i].name.split("/");
 		namecopy = namecopy[namecopy.length-1];		//Strip folder path.
