@@ -135,7 +135,7 @@ if(safe) {
 	//fl.trace("Adjust boss animation data");
 	var bossjs = FLfile.read(bossdir + "fla/boss.js");
 	/**
-	///For some reason, using a regex literal here causes the script to produce a blank error when run from an SWF Panel, but it's fine when run from the command menu or a keyboard shortcut.
+	///For some reason, the following line does not run when this script is called from an SWF panel, although it's fine when run from the command menu or keyboard shortcut. Seems like the choices are between removing the feature and maintaining two versions of this script depending on how it's called. So, commenting out for now. Thanks, Adobe devs.
 	dmgmc = fl.findObjectInDocByName("mc_dmgPt", fl.getDocumentDOM())[0].obj;
 	bossjs = bossjs.replace(/this\.dmgPosX\t= \d+/, "this.dmgPosX	= " + dmgmc.x);
 	bossjs = bossjs.replace(/this\.dmgPosY\t= \d+/, "this.dmgPosY	= " + dmgmc.y);
