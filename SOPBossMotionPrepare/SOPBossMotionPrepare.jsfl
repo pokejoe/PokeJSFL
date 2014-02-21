@@ -1,5 +1,5 @@
 ﻿/*
-	SOPBossMotionPrepare v1.22
+	SOPBossMotionPrepare v1.23
 	Copyright Joseph Jacir 7 February 2014
 	
 	Creates the 動作確認 folder for the purpose of checking and turning in a Boss Motion for SOP.
@@ -132,17 +132,21 @@ if(safe) {
 	FLfile.write(checkdir + "raidBattle.html", raidbattlehtml);
 	
 	//Adjust boss animation data
+	//fl.trace("Adjust boss animation data");
 	var bossjs = FLfile.read(bossdir + "fla/boss.js");
-	/**/
+	/**
+	///For some reason, using a regex literal here causes the script to produce a blank error when run from an SWF Panel, but it's fine when run from the command menu or a keyboard shortcut.
 	dmgmc = fl.findObjectInDocByName("mc_dmgPt", fl.getDocumentDOM())[0].obj;
 	bossjs = bossjs.replace(/this\.dmgPosX\t= \d+/, "this.dmgPosX	= " + dmgmc.x);
 	bossjs = bossjs.replace(/this\.dmgPosY\t= \d+/, "this.dmgPosY	= " + dmgmc.y);
 	/**/
 
 	//Copy boss animation data to check directory
+	//fl.trace("Copy boss animation data");
 	FLfile.write(bossdir + "fla/boss.js", bossjs);
 	FLfile.remove(checkdir + "data_boss/boss.js");
 	FLfile.copy(bossdir + "fla/boss.js", checkdir + "data_boss/boss.js");
+	//fl.trace("Upload check and cleanup remain");
 	
 	//Upload if requested (from the prompt answered by the user after publishing)
 	if(uploc != null && uploc != "") {
