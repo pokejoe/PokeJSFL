@@ -1,18 +1,20 @@
 ﻿/*
-	LibNameReplace v0.2
+	LibNameReplace v1.0
 	Does a find and replace on user-input text on all names in the library.
-	If an image source path is provided, also reconnects matching path names to a corresponding source.
+	
 	
 	E.g.	例
 	If inputs are:		入力
 		Find	検索: 		DOG
 		Replace	置換:		PIG
-		This feature temporarily removed > Img src　画像保存先:	C:\Projects\images
+		This feature (temporarily?) removed:
+			Img src　画像保存先:	C:\Projects\images
 	
 	Results are:		結果
 		DOG15.png →	PIG15.png
 		DOG15 Movie Clip → PIG15 Movie Clip
-		This feature temporarily removed > C:\Users\SomeoneElse\DOG15.png -> C:\Projects\images\PIG15.png
+		This feature (temporarily?) removed:
+			C:\Users\SomeoneElse\DOG15.png -> C:\Projects\images\PIG15.png
 	
 	Copyright 30 January 2014, Joseph Jacir. 
 	Dev time: 5.5 hr
@@ -20,7 +22,7 @@
 
 fl.outputPanel.clear();
 
-fl.trace("This will find and replace all item names matching a regular expression in the library with a replacement string. All bitmaps whose source matches the regex will also have their sources replaced. Leave Image Directory blank to skip this last step.\nこのツールは、フラッシュライブラリのアイテムの名前をすべて検索置換します。検索分は、RegExp（正則表現）でご入力ください。ライブラリ内の画像の参照ファイル名がマッチだったら、参照ファイル名も置換します。画像の保存先を空白で入力すると、保存先置換ステップをしません。\n");
+fl.trace("This will find and replace all item names matching a regular expression in the library with a replacement string. \nこのツールは、フラッシュライブラリのアイテムの名前をすべて検索置換します。検索分は、RegExp（正則表現）でご入力ください。\n");
 
 //File utility functions
 function upOne(path) {
@@ -74,11 +76,14 @@ function findAndRepl(find, repl, hits, imgdir) {
 			lib.items[i].name = name;
 			hits = findAndRepl(find, repl, hits, imgdir); //Recurse because JSFL sux
 		} else {
-			fl.trace("・	" + name);
+			//fl.trace("・	" + name);
 		} /**/
 
 		/* //!!!!!!!!!!!!!!!!!!!
 		//This part is to replace the source path. It doesn't work because bitmapItem.sourceFilePath is read-only. A possible solution would be to import the new image, plop it into every spot in the flash file where the original is used, then delete the original. But I can't justify the dev time for that now. So I've removed this feature for now.
+		
+		///Update: I am thinking this feature is not even necessary in the contexts this is used. So I may not implement it at all.
+		
 		if (lib.items[i].itemType == "bitmap"　&& imgdir) {
 		//Replace file source reference if matching and user input a path.
 			//fl.trace("	↑ bitmap");
