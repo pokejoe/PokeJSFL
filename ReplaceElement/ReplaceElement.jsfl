@@ -1,17 +1,10 @@
 ﻿/*
-	NOT YET READY FOR USE
-
 	Replace Element
 	Replaces element 0 on the selected frames with the selected library item.
 	選択されたフレームの0番エレメントを選択されたライブラリーアイテムで変換します。
 	
-	v0.2
+	v1.1
 	Copyright 5 November 2013 Joseph Jacir
-	
-	TODO:
-		Add support for transparency animation
-		Adjust for different pivot points and anchors
-		Make it so that the library item can be selected last (currently breaks the program)
 */
 
 fl.outputPanel.clear();
@@ -33,7 +26,7 @@ if (!sel.length) {			//No frames selected
 	fl.trace("タイムラインから選択されているフレームを見つかりませんでした。一つ以上のフレームとライブラリーアイテムを1個だけを選択してください。\n");
 }
 
-if (lib.getSelectedItems().length != 1) {	//No/multiple library items selected
+if (lib.getSelectedItems().length != 1) {	//No or multiple library items selected
 	fl.trace("Please select exactly one library item.");
 	fl.trace("ちょうど一つライブラリーアイテムを選択してください。\n");
 	sel = []; //So the lower for loop doesn't iterate; script should then exit.
@@ -48,10 +41,18 @@ if (lib.getSelectedItems().length != 1) {	//No/multiple library items selected
 //lib.selectNone(); 
 //tim.setSelectedFrames(these);
 
-for (var i = 0; i < sel.length; i += 3) { //Remove folders from the selection array
+for (var i = 0; i < sel.length; i += 3) { //Remove folders and locked layers from the selection array
+	//fl.trace("i = " + i);
 	if (tim.layers[sel[i]].layerType == "folder") {
-		fl.trace("Deselecting folder " + tim.layers[sel[i]].name);
+		fl.trace("x  Folder " + tim.layers[sel[i]].name);
 		sel.splice(i,3);	//Drop 3 elements from the array starting at i, i.e. one full range.
+		i -= 3;
+	} else {
+		if (tim.layers[sel[i]].locked) {
+			fl.trace("x Locked " + tim.layers[sel[i]].name);
+			sel.splice(i,3);	//Drop 3 elements from the array starting at i, i.e. one full range.
+			i -= 3;
+		}
 	}
 }
 
@@ -59,7 +60,7 @@ for (var i = 0; i < sel.length; i += 3) { //for every selected range
 	var layer = sel[i];
 	var start = sel[i+1];
 	var end = sel[i+2];
-	fl.trace("#" + layer + "	" + start + "-" + end + " " + tim.layers[layer].name);
+	fl.trace("L" + layer + "	" + start + "-" + end + " " + tim.layers[layer].name);
 	replaceRange(layer, start, end);
 }
 
@@ -71,52 +72,22 @@ function replaceRange(layer, start, end) {
 		end = curlayer.frames.length;
 	}
 
-	for (var i = curlayer.frames[start].startFrame; i < end; i += curlayer.frames[i].duration) { 
-	//For each keyframe in the range. Assumes zero or one element per frame, ignores others' data and destroys them.
-		if (curlayer.frames[i].elements.length) {
-			tim.currentFrame = i;
-			var fr = curlayer.frames[i];
-			var el = fr.elements[0];
-			fl.trace("f" + i );
+	if (curlayer.frames[start]) {
+	//Make sure that there is frame data on this part of the selection
+		for (var i = curlayer.frames[start].startFrame; i < end; i += curlayer.frames[i].duration) { 
+		//For each keyframe in the range. Assumes zero or one element per frame, ignores others' data and destroys them.
+			if (curlayer.frames[i].elements.length) {
+				tim.currentFrame = i;
+				var fr = curlayer.frames[i];
+				var el = fr.elements[0];
+				fl.trace("	f" + i );
+				
+				dom.selectNone();
+				dom.selection = [el];
+				dom.swapElement(libi.name)
+			}
 			
-			//Collect position and animation data from old element
-			var posani = {
-				startFrame:			fr.startFrame,
-				duration:			fr.duration,
-				tweenType:			fr.tweenType,
-				tweenEasing:		fr.tweenEasing,
-				x:					el.x,
-				y:					el.y,
-				scaleX:				el.scaleX,
-				scaleY:				el.scaleY,
-				skewX:				el.skewX,
-				skewY:				el.skewY
-			};
-			
-			/*Diagnostics */
-			for (var j in posani ) {
-				fl.trace("	" + j + ":		" + posani[j]);
-			} /**/
-		
-			//Delete the old element
-			fr.tweenType = "none";
-			el.selected = true;			
-			dom.deleteSelection();
-			
-			//Add the new element
-			lib.addItemToDocument({x: posani.x, y: posani.y}, libi);
-			el = fr.elements[0];
-			
-			//Set the position and animation data of the new element/frame to that stored from the old one
-			el.scaleX = posani.scaleX;
-			el.scaleY = posani.scaleY;
-			el.skewX = posani.skewX;
-			el.skewY = posani.skewY;
-			fr.tweenType = posani.tweenType;
-			fr.tweenEasing = posani.tweenEasing;
-			/**/
 		}
-		
 	}
 }
 
