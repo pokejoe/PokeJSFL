@@ -1,0 +1,44 @@
+A {
+	color:				#000099;
+	text-decoration:	none;
+}	
+
+BODY {
+	background-color:	#FFFFEE;
+}	
+		
+H2 {
+	position:	relative;
+	clear:		both;
+}		
+
+H3 {
+	position:	relative;
+	clear:		both;
+	margin-left:	2em;
+}
+		
+.flr {
+	position:	relative;
+	float:		right;
+}
+
+.fll {
+	position:	relative;
+	float:		left;
+}
+
+.details {
+	display:				none;
+	margin-left:			1em;
+	background-color:		#FFFFCC;
+}
+
+.tatoeba {
+	font-style: 	italic;
+	margin-left:	3em;
+}
+
+.small {
+	font-size:		9pt;
+}

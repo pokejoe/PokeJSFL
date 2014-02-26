@@ -3,32 +3,30 @@
 	Translates Japanese-named default objects to English, replaces full-width alphanumerics with normal "half-width" characters, and replaces all remaining unrecognized Japanese characters in object names with a numbered "JNAME" token.
 	日本語でのデフォールトオブジェクトを英訳して、全角英数字を半角にして、残りの見分けられない日本語を「JNAME」+数字に変更します。
 	Copyright Joseph Jacir 4 June 2013
-	v1
+	v1.1
 	
-	WARNINGS: 
-		The Flash library structure uses a dash "-" to delineate folders in names. Because of the way JSFL accesses the name property, I cut off names before the dash, so do not use them in object names!
-		
+	WARNINGS: 		
 		If you undo immediately after running the script, it will undo the renaming successfully, but it will also flatten your library's directory structure. This is another result of the above ugliness. Better to save first and revert if necessary.
 */
 
 fl.outputPanel.clear();
 
 var	words = new Object();		//a list of all Japanese terms used by Flash and their English equivalents
-	words.symbol_ = "シンボル ";
-	words.bitmap_ = "ビットマップ ";
-	words.layer_ = "レイヤー ";
-	words.button_ = "ボタン ";
-	words.graphic_ = "グラフィック ";
-	words.tween_ = "トゥイーン ";
-	words.movieClip_ = "ムービークリップ ";
-	words.untitled_ = "名称未設定";
-	words.folder_ = "フォルダー ";
-	words.scene_ = "シーン ";
+	words.Symbol_ = "シンボル ";
+	words.Bitmap_ = "ビットマップ ";
+	words.Layer_ = "レイヤー ";
+	words.Button_ = "ボタン ";
+	words.Graphic_ = "グラフィック ";
+	words.Tween_ = "トゥイーン ";
+	words.MovieClip_ = "ムービークリップ ";
+	words.Untitled_ = "名称未設定";
+	words.Folder_ = "フォルダー ";
+	words.Scene_ = "シーン ";
 	words._copy = " のコピー";
-	words.copy = "コピー";
-	words.words = "言葉";
-	words.text = "テキスト";
-	words.bg = "背景";
+	words.Copy = "コピー";
+	words.Words = "言葉";
+	words.Text = "テキスト";
+	words.BG = "背景";
 	
 var jpatt = /([\u4e00-\u9fbf]|[\u3040-\u309f]|[\u30A0-\u30FF]|[\uFF56-\uFF9F])+/; //matches Kanji, Hiragana, Katakana, and half-width Katakana.
 var fwDiff = 0xFF10-0x30;	//The integer difference between the full- and half-width characters, i.e. ３ to 3.
@@ -125,7 +123,8 @@ var items = document.library.items;
 fl.trace("Scanning " + items.length + " library items for Japanese");
 for (var i = items.length-1; i >= 0; i--) { //For some reason these are indexed backwards, so loop backwards
 	fl.trace(" Inspecting " + items[i].name);
-	items[i].name = translate(items[i].name);
+	var cutoff = items[i].name.split("/");
+	items[i].name = translate(cutoff[cutoff.length-1]);
 	
 	//If the object has a timeline, enter it and scan that too.
 	if (items[i].timeline){
@@ -134,11 +133,6 @@ for (var i = items.length-1; i >= 0; i--) { //For some reason these are indexed 
 	}
 	
 	fl.trace(" Item complete: #" + i);
-	
-	//This deals with symbols nested in folders; because of the ugly way JSFL handles the names of items in folders, they get a lot of junk prepended, separated by dashes "-". Therefore, cut off anything before the final dash. The drawback is that you can't use dashes in names or they will get mangled, but oh well.
-	var cutoff = items[i].name.split("-");
-	items[i].name = cutoff[cutoff.length-1];
-
 } /***/
 
 for(var t=0; t < fl.getDocumentDOM().timelines.length; t++) {
