@@ -3,7 +3,7 @@
 	Takes selected library items (bitmaps, graphics, and movie clips) and centers them in a new movie clip each.
 	ライブラリの選択範囲のアイテム（ビットマップ、グラフィック、ムービークリップ）を新しいムービークリップの中に置きます。
 	Copyright Joseph Jacir, 13 June 2013
-	v1.5
+	v1.6
 */
 
 fl.outputPanel.clear();
@@ -12,7 +12,7 @@ var sel = document.library.getSelectedItems();
 
 
 for (var i in sel) {
-	var clipname = sel[i].name.replace(/\....$/,"");	//replaces 3-letter filename extension　at the end of a string.
+	var clipname = sel[i].name.replace(/\....$/,"") + "_m";	//replaces 3-letter filename extension　at the end of a string.
 	var itemindex = document.library.findItemIndex(sel[i].name);
 	//fl.trace(sel[i].name + "	" + sel[i].itemType + "	" + clipname);
 	
