@@ -37,7 +37,7 @@ for (var i = 0; i < sel.length; i += 3) {	//Send every individual range to the a
 	var layer = sel[i];
 	var start = sel[i+1];
 	var end = sel[i+2];
-	fl.trace("#" + layer + "	" + start + "-" + end + " " + tim.layers[layer].name);
+	fl.trace("L" + layer + "	" + start + "-" + end + " " + tim.layers[layer].name);
 	alignRange(layer, start, end);
 }
 
@@ -53,7 +53,7 @@ function alignRange(layer, start, end) {
 		for (var i = tim.layers[layer].frames[start].startFrame; i < end; i+=tim.layers[layer].frames[i].duration) { 
 		//for each keyframe in the given range
 			if (tim.layers[layer].frames[i] && tim.layers[layer].frames[i].startFrame == i) {	
-			//check for existance as well as keyframeyness
+			//check for existence as well as keyframeyness
 				fl.trace("	key: " + i + "		elements: " + tim.layers[layer].frames[i].elements.length);
 				for (var j in tim.layers[layer].frames[i].elements) {
 					alignElement(tim.layers[layer].frames[i].elements[j]);
