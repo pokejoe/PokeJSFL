@@ -10,7 +10,7 @@ fl.outputPanel.clear();
 var sel = document.library.getSelectedItems();
 
 if (!sel.length) {
-	fl.trace("Please selecte library items to prefix before running.\n実行する前に、対応したいライブラリアイテムを選択してください。");
+	fl.trace("Please select library items to prefix before running.\n実行する前に、対応したいライブラリアイテムを選択してください。");
 } else {
 	var prefix = prompt("Enter prefix　接頭入力");
 	if (prefix == null || prefix == "") {
