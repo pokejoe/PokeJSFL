@@ -1,5 +1,5 @@
 ﻿/*
-	AutoWobble v0.32
+	AutoWobble v1.0
 	Copyright Joseph Jacir, 5 March 2014
 	
 	Automatic bouncy animation. BOIOIOIOING!!
@@ -13,22 +13,18 @@
 		
 		4) Execute script.
 	
-	TODO:
-		Haven't gotten the firmness expression to work right.
-	
+	TODO:	
 		Needs to adapt to short selections. At present, the effect chokes on selections close to the interval size. Adaptively reduce interval size for short selections?
 		
 		Not sure about this, but maybe a better approach is to check the velocity of the character between the last n frames preceding the bounce (where n is the interval?) rather than checking the previous keyframe. The current approach does not adapt to the length of time that this change takes.
 		
-		GUI and params in place to adjust proportions for pos/rot/scale, but not yet implemented.
-		
 		Create global variables to copy from SWF Panel call, so it can be re-run from keyboard shortcut without panel arguments?
 		
-		Along with the GUI, some way of saving (or at least loading?) presets for the above settings? Preset for speak bubbles, preset for breasts, preset for logos hitting the screen, etc.
+		Implement preset-related functions on panel
 			
 	Notes:
 		After endless fumbling with a graphing calculator app, I got a nice looking graph with an adjustable factor for firmness from this equation:
-			0.8733 * Math.atan(-1 * bouncenum ^ firmfactor * 2.1855) + 1;
+			0.8733 * Math.atan(Math.pow(bouncecompletepercent, firmfactor) * -2.1855) + 1;
 		Where firmfactor is between 0 and 7, with 1.75 being quite balanced on both sides.
 */
 
@@ -40,7 +36,7 @@ var now = tim.currentFrame;		//For cleaning up at the end.
 
 
 function EleMove() {	//Constructor
-	//Keeps track of all moving properties of an element.
+	//Keeps track of all moving properties of an element. All properties must also be properties of the Element object.
 	//Generally should be used for the DIFFERENCE in values between two keyframes.
 	this.x = 0;
 	this.y = 0;
@@ -68,10 +64,8 @@ function getFirmBounceFactor(bouncenum, bouncetotal, firmness) {
 	//returns the proportion this bounce to velocity, i.e. bounce factor for a single bounce.
 	var firmfactor = firmConvert(firmness);
 	var completion = bouncenum / bouncetotal;	//Factor, 0-1, what percentage completion of the wobble this bounce represents
-	fl.trace("completion: " + completion);
-	var result = (0.8733 * (Math.atan((completion ^ firmfactor) * -2.1855))) + 1;
-	fl.trace("(0.8733 * (arctan((" + completion  + " ^ " + firmfactor + ") * -2.1855))) + 1" );
-	fl.trace("Factor - in: " + firmness + "  out: " + result);
+	fl.trace(" %: " + Math.round(completion*10000)/100 + "	f: " + firmfactor);
+	var result = (0.8733 * Math.atan(Math.pow(completion, firmfactor) * -2.1855)) + 1;;
 	return result;
 }
 
@@ -94,6 +88,7 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 	 /**/
 	
 	//Convert percentages to factors
+	maxbounce /= 100;
 	posfactor /= 100;
 	skewfactor /= 100;
 	scalefactor /= 100;
@@ -144,7 +139,6 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 		var el = lay.frames[sel[1]].elements[0];
 		var woblength = sel[2] - sel[1];	//Length in frames of wobbling animation
 		var keycount = Math.floor(woblength / interval) - 1;
-		var direction = -1;	//So the keyframes alternate between going with and against the input vector
 		
 		fl.trace("	Duration: " + woblength);
 		fl.trace("	Bounces: " + keycount);
@@ -154,7 +148,7 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 		//TODO - do this in a way that accounts for velocity at the end of the previous motion, rather than just the difference between motion end and motion beginning.
 		fl.trace("Initial motion delta:");
 		for (var k in inputvect) {
-			inputvect[k] = (prevel[k] - el[k]) * maxbounce;
+			inputvect[k] = (el[k] - prevel[k]);
 			fl.trace("	" + k + ": " + inputvect[k]);
 		}
 		fl.trace("");
@@ -175,26 +169,33 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 			biasflip *= -1;
 		}
 		
-		//Move the element of each new key according to the bounce algorithm
+		/**/
+		//Transform the element of each new key according to the bounce algorithm
+		var direction = 1;	//So the keyframes alternate between going with and against the input vector
 		for (var i = 0; i < keycount; i++) {
-			var nel = lay.frames[sel[1] + (interval * i)].elements[0];	//next bounce keyframe's element
-			var bounce = getFirmBounceFactor(i, keycount, firmness) * maxbounce;	//reduce bounce each iteration
-			fl.trace("Bounce #" + i + " amt: " + bounce);
-			for (var k in inputvect) {
-				nel[k] = nel[k] + (inputvect[k] * bounce * direction);
-				fl.trace("	" + k + ": " + nel[k]);
-			}
+			var cel = lay.frames[sel[1] + (interval * i)].elements[0];	//current bounce keyframe's element
+			var bounce = getFirmBounceFactor(i, keycount, firmness) * maxbounce;	//reduce bounce each iteration, always a fraction of the max bounce
+			fl.trace("Bounce #" + i + " amt: " + Math.round(bounce*100000) / 1000 + "%");
+
+			cel.x = cel.x + (inputvect.x * bounce * posfactor * direction);
+			cel.y = cel.y + (inputvect.y * bounce * posfactor * direction);
+			cel.skewX = cel.skewX + (inputvect.skewX * bounce * skewfactor * direction);
+			cel.skewY = cel.skewY + (inputvect.skewY * bounce * skewfactor * direction);
+			cel.scaleX = cel.scaleX + (inputvect.scaleX * bounce * scalefactor * direction);
+			cel.scaleY = cel.scaleY + (inputvect.scaleY * bounce * scalefactor * direction);
+
 			direction *= -1;	//Change direction of movement for next bounce
 			fl.trace("");
 		}
-		
+		/**/
 	} else {
 		fl.trace("Couldn't wobble. Alas :(");
 	}
 	
 	/* Reset UI after running */
 	tim.setSelectedFrames(sel);
-	tim.currentFrame = now;
+	//tim.currentFrame = now; //Actually, it's more useful to go to the beginning of the lead-up motion so you can watch the result.
+	tim.currentFrame = prevel.startFrame;
 	/**/
 }
 
@@ -205,7 +206,7 @@ function quickUndoWobble() {
 
 	//Safety checks - similar to, but slightly different from autoWobble()'s, so not encapsulating.
 	var safe = true
-	var unsafemsg = "Quick Undo can only be used if the wobbled range is still selected. You can still use normal undo, but it will undo each step one at a time.\n\nWobbleされた範囲が選択されていない場合は、「Quick Undo」を実行できません。普通の取り消しは使えますが、段階を追って取り消します。";
+	var unsafemsg = "The wobbled range (exactly) must be selected. You can still use normal undo, but it will undo each step one at a time.\n\nちょうどWobbleされた範囲が選択されていない場合は、「Revert」を実行できません。普通の取り消しは使えますが、段階を追って取り消します。";
 	if (sel.length != 3) {	//More than one range selected
 			alert(unsafemsg);
 			safe = false;
@@ -242,33 +243,10 @@ function quickUndoWobble() {
 		tim.clearKeyframes(sel[2]-1);
 	}
 	
+	
+	
 	/* Reset UI after running */
 	tim.setSelectedFrames(sel);
 	tim.currentFrame = now;
 	/**/
 }
-
-//////////TEMPORARY ENTRY POINT - get rid of this when this script is called by the GUI.
-//autoWobble(3, 50, -35, 25, 5, 100);
-//fl.trace("AutoWobble.jsfl called");
-
-//Test equation
-fl.outputPanel.clear();
-/**/
-for (var i = 0; i <= 100; i += 5) {
-	for (var j = 0; j < 8; j++) {
-		fl.trace("・firmness: " + i + " bounce#: " + j);
-		getFirmBounceFactor (j, 8, i)
-		fl.trace("");
-	}
-}
-
-/*
-for (var i = 0; i <= 100; i+=5) {
-	fl.trace("i: " + i + "  f: " + firmConvert(i));
-}/**/
-
-var temp = ((0.8733 * (Math.atan((0.375 ^ 1.75) * -2.1855))) + 1);
-//expected result: 0.673183, actual result: 0.002977558258926538
-//out of my depth with the math here. What do?
-fl.trace("(0.8733 * (arctan((0.375 ^ 1.75) * -2.1855))) + 1 = " + temp);
