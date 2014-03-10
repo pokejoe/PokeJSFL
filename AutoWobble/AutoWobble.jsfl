@@ -1,5 +1,5 @@
 ﻿/*
-	AutoWobble v1.0
+	AutoWobble v1.01
 	Copyright Joseph Jacir, 5 March 2014
 	
 	Automatic bouncy animation. BOIOIOIOING!!
@@ -14,14 +14,22 @@
 		4) Execute script.
 	
 	TODO:	
-		Needs to adapt to short selections. At present, the effect chokes on selections close to the interval size. Adaptively reduce interval size for short selections?
-		
-		Not sure about this, but maybe a better approach is to check the velocity of the character between the last n frames preceding the bounce (where n is the interval?) rather than checking the previous keyframe. The current approach does not adapt to the length of time that this change takes.
+		Needs to adapt to short selections. At present, the effect chokes on selections close to the interval size. Adaptively reduce interval size for short selections? Or adapt minimum selection size to the interval?
 		
 		Create global variables to copy from SWF Panel call, so it can be re-run from keyboard shortcut without panel arguments?
 		
-		Implement preset-related functions on panel
-			
+		Move the presets to a new folder that won't be overwritten whenever the PokeAniToolbox is run.
+		
+		Create documentation.
+		
+		Make some more useful presets, maybe a boob and a logo example would be in order.
+		
+		Release!
+		
+	BUGS:
+		Revert button leaves some strange artifact keys when the interval is set to one (possibly other conditions as well).
+		
+		Wobble button also causes the playhead to jump to the wrong place.
 	Notes:
 		After endless fumbling with a graphing calculator app, I got a nice looking graph with an adjustable factor for firmness from this equation:
 			0.8733 * Math.atan(Math.pow(bouncecompletepercent, firmfactor) * -2.1855) + 1;
@@ -201,7 +209,7 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 
 function quickUndoWobble() {
 //When run from the panel, using the normal undo function undoes each step, one by one, rather than the whole command.
-//This is annoying, so allow the user to simply undo the whole thing from a button.
+//This is annoying, so this function allows the user to simply undo the whole thing from a button.
 //Despite safety checks, can conceivably be misued on a range of frames other than one created by autoWobble(). Unavoidable risk, user will have to be careful.
 
 	//Safety checks - similar to, but slightly different from autoWobble()'s, so not encapsulating.
