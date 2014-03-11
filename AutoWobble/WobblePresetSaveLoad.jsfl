@@ -8,8 +8,7 @@ fl.outputPanel.clear();
 var prepath = fl.configURI + "PokeResources/WobblePresets.csv";
 
 function wobblePresetPopulate() {
-	var all = FLfile.read(prepath);
-	return all;
+	return FLfile.read(prepath);
 }
 
 function wobblePresetSave(pA) {

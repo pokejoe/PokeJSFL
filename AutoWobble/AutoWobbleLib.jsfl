@@ -1,5 +1,5 @@
 ﻿/*
-	AutoWobble v1.01
+	AutoWobble v1.04
 	Copyright Joseph Jacir, 5 March 2014
 	
 	Automatic bouncy animation. BOIOIOIOING!!
@@ -13,13 +13,11 @@
 		
 		4) Execute script.
 	
-	TODO:	
-		Needs to adapt to short selections. At present, the effect chokes on selections close to the interval size. Adaptively reduce interval size for short selections? Or adapt minimum selection size to the interval?
+	TODO:
+		Implement stretch adjustment
 		
-		Create global variables to copy from SWF Panel call, so it can be re-run from keyboard shortcut without panel arguments?
-		
-		Move the presets to a new folder that won't be overwritten whenever the PokeAniToolbox is run.
-		
+		English / Japanese toggle?
+	
 		Create documentation.
 		
 		Make some more useful presets, maybe a boob and a logo example would be in order.
@@ -27,12 +25,12 @@
 		Release!
 		
 	BUGS:
-		Revert button leaves some strange artifact keys when the interval is set to one (possibly other conditions as well).
-		
-		Wobble button also causes the playhead to jump to the wrong place.
+		Bug in Flash - If a panel and a command have the same name, assigning a keyboard shortcut to the command will assign it to the panel instead.
+
 	Notes:
 		After endless fumbling with a graphing calculator app, I got a nice looking graph with an adjustable factor for firmness from this equation:
 			0.8733 * Math.atan(Math.pow(bouncecompletepercent, firmfactor) * -2.1855) + 1;
+			https://www.desmos.com/calculator/zdmshghya8 (Move the a-slider to see the effect of the firmness factor)
 		Where firmfactor is between 0 and 7, with 1.75 being quite balanced on both sides.
 */
 
@@ -56,15 +54,8 @@ function EleMove() {	//Constructor
 
 function firmConvert(f) {
 	//Converts number 1 to 100 into firmness factor for bounce dampening equation
-	//This is surely a naive way to do it, but I don't math good.
-	if (f >= 0 && f <= 50)
-		return (f * 1.75) / 50;
-	else if (f > 50 && f <=100)
-		return 2 * (f/50) * 1.75;
-	else {
-		alert("Firmness factor conversion error. f = " + f);
-		return null;
-	}
+	//i.e. a number 0 to 7, with 1.75 being the middle.
+	return (Math.pow(f, 2)/100) * 0.07;
 }
 
 function getFirmBounceFactor(bouncenum, bouncetotal, firmness) {
@@ -72,26 +63,30 @@ function getFirmBounceFactor(bouncenum, bouncetotal, firmness) {
 	//returns the proportion this bounce to velocity, i.e. bounce factor for a single bounce.
 	var firmfactor = firmConvert(firmness);
 	var completion = bouncenum / bouncetotal;	//Factor, 0-1, what percentage completion of the wobble this bounce represents
-	fl.trace(" %: " + Math.round(completion*10000)/100 + "	f: " + firmfactor);
+	fl.trace(" %: " + Math.round(completion*10000)/100 + "	f: " + Math.round(firmfactor*10000)/10000);
 	var result = (0.8733 * Math.atan(Math.pow(completion, firmfactor) * -2.1855)) + 1;;
 	return result;
 }
 
 
-function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfactor, scalefactor) {
+function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfactor, scalefactor, stretchfactor) {
 	//Main function. Accepts parameters for bouncing from SWF Panel. Tests the environment for the timeline selection (and establishes safety of timeline selection)
-	fl.outputPanel.clear();
-	
+	fl.outputPanel.clear();	
 	var safe = true;	//Set to false if preconditions for running aren't met; main code won't run.
 	
-	 /* Check argument integrity *
+	//The command panel version sends input arguments, but the keyboard shortcut version cannot. So save the last used parameters to be read by the keyboard shortcut version.
+	var lastused = interval + "," + maxbounce + "," + firmness + "," + easing + "," + posfactor + "," + skewfactor + "," + scalefactor + "," + stretchfactor;
+	FLfile.write(fl.configURI + "PokeResources/WobbleLastUsed.csv", lastused);
+	
+	 /* Check argument integrity */
 	 fl.trace("interval:		" + interval);
 	 fl.trace("maxbounce:		" + maxbounce);
 	 fl.trace("firmness:		" + firmness);
 	 fl.trace("easing:			" + easing);
 	 fl.trace("posfactor:		" + posfactor);
 	 fl.trace("skewfactor:		" + skewfactor);
-	 fl.trace("scalefactor:		" + scalefactor);
+	 fl.trace("scalefactor:	" 	  + scalefactor);
+	 fl.trace("stretchfactor:	" + stretchfactor);
 	 fl.trace("_______________");
 	 /**/
 	
@@ -100,6 +95,7 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 	posfactor /= 100;
 	skewfactor /= 100;
 	scalefactor /= 100;
+	stretchfactor /= 100;
 	
 	//Safety checks
 	if (sel.length != 3) {
@@ -110,8 +106,8 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 		if (sel[1] == 0) {
 			alert("Can't start on the first frame. There must a motion leading up to the beginning of the selection.\n\nタイムラインの最初のフレームに始まらりません。揺れの前の動きが必要ですから。");
 			safe = false;
-		} else if (sel[2] - sel[1] < 3) { 
-			alert("Please select at least 3 frames. The first selected frame should be the end of the movement. The wobble will be filled in on the rest of the frames.\n\n3フレーム以上を選択してください。最初の選択されたフレームは動きの終わりにしてください。残りのフレームは揺れになります。");
+		} else if (sel[2] - sel[1] < interval * 2) { 
+			alert('Please select more frames. The first selected frame should be the end of the movement. The wobble will be filled in on the rest of the frames. The selection length must be at least twice the "interval" option. \n\n選択されたフレームは足りません。最初の選択されたフレームは動きの終わりにしてください。残りのフレームは揺れになります。選択範囲は「interval」の二倍以上でください。');
 			safe = false;	/**/
 		/**else if (sel[2] - sel[1] < 12) {	//For debug purposes, use this instead of above code in this block.
 			alert("Debug requirement: please select at least 12 frames.");
@@ -121,7 +117,7 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 			alert("First frame must be a keyframe. The rest must not be keyframes.\n必ず最初の選択されたフレームをキーフレームにしてください。残るフレームは、すべて不キーフレームにしてください。"); 
 			safe = false;
 		}　else {
-			var prevel = lay.frames[lay.frames[sel[1]-1].startFrame].elements[0];
+			var prevel = lay.frames[sel[1]-1].elements[0];
 			//The element in the keyframe before the selection. Used in main code!
 			if (typeof prevel == "undefined") {
 				alert("Selection must follow another keyframe. This tool is intended to finish an existing movement with a wobble.\n\n選択されたフレーム範囲はほかのキーフレームの後に現れなければなりません。このツールの目標は、現在の動きを揺れに閉まるつもりです。");
@@ -153,7 +149,6 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 		fl.trace("_______________");
 		
 		//Store initial velocity as change between our first key and its previous key
-		//TODO - do this in a way that accounts for velocity at the end of the previous motion, rather than just the difference between motion end and motion beginning.
 		fl.trace("Initial motion delta:");
 		for (var k in inputvect) {
 			inputvect[k] = (el[k] - prevel[k]);
@@ -171,7 +166,11 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 		
 		//Set all keys with alternating tween easing but no other property changes, initially.
 		var biasflip = -1;
-		for (var i = 1; i <= keycount; i++) {
+		if (interval == 1) {
+			keycount--;
+		}
+		for (var i = 1; i <= keycount && sel[1] + (i*interval) <= sel[1] + keycount * interval; i++) {
+		//Second condition accounts for extra keyframes that sometimes push in when interval is small
 			tim.insertKeyframe(sel[1] + (i*interval));
 			lay.frames[sel[1] + (i*interval)].tweenEasing = easing * biasflip;
 			biasflip *= -1;
@@ -202,8 +201,8 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 	
 	/* Reset UI after running */
 	tim.setSelectedFrames(sel);
-	//tim.currentFrame = now; //Actually, it's more useful to go to the beginning of the lead-up motion so you can watch the result.
-	tim.currentFrame = prevel.startFrame;
+	safe ? tim.currentFrame = lay.frames[sel[1] - 1].startFrame : tim.currentFrame = now;
+	fl.trace(lay.frames[sel[1] - 1].startFrame);
 	/**/
 }
 
@@ -241,14 +240,14 @@ function quickUndoWobble() {
 	if (safe) {
 		//Clear all but last keyframe
 		tim.clearKeyframes(sel[1],sel[2]-2);
-		
+
 		//Copy last keyframe to the beginning and remove any tween
 		tim.copyFrames(sel[2]-1);
 		tim.pasteFrames(sel[1]);
 		lay.frames[sel[1]].tweenType = "none";
 		
 		//Clear last keyframe
-		tim.clearKeyframes(sel[2]-1);
+		tim.clearKeyframes(sel[1]+1,sel[2]);
 	}
 	
 	
