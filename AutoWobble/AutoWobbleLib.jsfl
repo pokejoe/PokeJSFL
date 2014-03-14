@@ -1,5 +1,5 @@
 ﻿/*
-	AutoWobble v1.05
+	AutoWobble v1.1
 	Copyright Joseph Jacir, 5 March 2014
 	
 	Automatic bouncy animation. BOIOIOIOING!!
@@ -13,15 +13,6 @@
 		
 		4) Execute script.
 	
-	TODO:		
-		Create documentation.
-		
-		Make some more useful presets, maybe a boob and a logo example would be in order.
-		
-		Release!
-
-	Bugs:
-		Can toggle to Japanese, but can't toggle back. WTH, AS3?
 	
 	Notes:
 		After endless fumbling with a graphing calculator app, I got a nice looking graph with an adjustable factor for firmness from this equation:
@@ -179,20 +170,15 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 		var sizeX = el.scaleX;		//Base size before wobbling scale, used for stretch calculation
 		var sizeY = el.scaleY;
 		var area = el.width * el.height;
-		var diagonal = 0;	//The amount to dampen stretch based on magnitude of vertical and horizontal movement
-		if (inputvect.x != 0 && inputvect.y != 0) {
-			//If there is no movement in either one of the directions, do not dampen stretch. If they're equal, completely dampen (i.e. no stretch). Calculate any value in between.
-			diagonal = Math.abs(inputvect.x / inputvect.y);
-		}
+
 		fl.trace("	area: " + area);
-		fl.trace("	diag: " + diagonal);
 		
-		for (var i = 0; i < keycount; i++) {
+		for (var i = 0; i <= keycount; i++) {
 			var cel = lay.frames[sel[1] + (interval * i)].elements[0];	//current bounce keyframe's element
 			var bounce = getFirmBounceFactor(i, keycount, firmness) * maxbounce;	//reduce bounce each iteration, always a fraction of the max bounce
 			fl.trace("Bounce #" + i + " amt: " + Math.round(bounce*100000) / 1000 + "%");
 
-			if (i > 0) {	
+			if (i >= 0) {	
 				cel.x += (inputvect.x * bounce * posfactor * direction * -1);	
 				cel.y += (inputvect.y * bounce * posfactor * direction * -1);
 			}
@@ -201,21 +187,20 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 			//Scale only calculation:
 			cel.scaleX = cel.scaleX + (inputvect.scaleX * bounce * scalefactor * direction);
 			cel.scaleY = cel.scaleY + (inputvect.scaleY * bounce * scalefactor * direction);
-			//Also affects scale, but stretch calculation:
+			//Also affects scale, but this is for stretch calculation:
 			//Detect horizontal, vertical, or neither for initial stretch:
-			if (inputvect.x > inputvect.y && stretchfactor) {
-				//Copy from below once working.
-			} else if (inputvect.y > inputvect.x && stretchfactor) {
-				fl.trace("stretch: " + inputvect.y * bounce * stretchfactor * direction);
+			if (Math.abs(inputvect.x) > inputvect.y && stretchfactor) {
+				cel.width = Math.abs(cel.width + Math.abs(inputvect.x) * bounce * stretchfactor * direction);
+				//To conserve area, one side should always be area / other side.
+				cel.height = area / cel.width;
+			} else if (Math.abs(inputvect.y) > inputvect.x && stretchfactor) {
 				cel.height = Math.abs(cel.height + inputvect.y * bounce * stretchfactor * direction);
 				//To conserve area, one side should always be area / other side.
 				cel.width = area / cel.height;
 			} else {
 				fl.trace("Can't stretch; disabled, or movement is equal on x and y.");
 			}
-			
-			
-			
+
 			direction *= -1;	//Change direction of movement for next bounce
 			fl.trace("");
 		}
