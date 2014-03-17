@@ -13,7 +13,6 @@
 		
 		4) Execute script.
 	
-	
 	Notes:
 		After endless fumbling with a graphing calculator app, I got a nice looking graph with an adjustable factor for firmness from this equation:
 			0.8733 * Math.atan(Math.pow(bouncecompletepercent, firmfactor) * -2.1855) + 1;
@@ -212,7 +211,6 @@ function autoWobble (interval, maxbounce, firmness, easing, posfactor, skewfacto
 	/* Reset UI after running */
 	tim.setSelectedFrames(sel);
 	safe ? tim.currentFrame = lay.frames[sel[1] - 1].startFrame : tim.currentFrame = now;
-	fl.trace(lay.frames[sel[1] - 1].startFrame);
 	/**/
 }
 

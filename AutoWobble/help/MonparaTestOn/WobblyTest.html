@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CreateJS export from WobblyTest</title>
+
+<script src="libs/easeljs-0.6.0.min.js"></script>
+<script src="libs/tweenjs-0.4.0.min.js"></script>
+<script src="libs/movieclip-0.6.0.min.js"></script>
+<script src="libs/preloadjs-0.3.0.min.js"></script>
+<script src="WobblyTest.js"></script>
+
+<script>
+var canvas, stage, exportRoot;
+
+function init() {
+	canvas = document.getElementById("canvas");
+	images = images||{};
+
+	var manifest = [
+		{src:"images/ArisaBase.png", id:"ArisaBase"},
+		{src:"images/ArisaEyesHappyClosed.png", id:"ArisaEyesHappyClosed"},
+		{src:"images/ArisaMouthSmileOpen.png", id:"ArisaMouthSmileOpen"},
+		{src:"images/bouncytxt.png", id:"bouncytxt"},
+		{src:"images/dame.png", id:"dame"},
+		{src:"images/FineCity.jpg", id:"FineCity"},
+		{src:"images/Kaede.png", id:"Kaede"},
+		{src:"images/KaedeAngryEyeL.png", id:"KaedeAngryEyeL"},
+		{src:"images/KaedeAngryEyeR.png", id:"KaedeAngryEyeR"},
+		{src:"images/KaedeAngryMouth.png", id:"KaedeAngryMouth"},
+		{src:"images/KaedeBlinkL.png", id:"KaedeBlinkL"},
+		{src:"images/KaedeBlinkR.png", id:"KaedeBlinkR"}
+	];
+
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload", handleFileLoad);
+	loader.addEventListener("complete", handleComplete);
+	loader.loadManifest(manifest);
+}
+
+function handleFileLoad(evt) {
+	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }
+}
+
+function handleComplete() {
+	exportRoot = new lib.WobblyTest();
+
+	stage = new createjs.Stage(canvas);
+	stage.addChild(exportRoot);
+	stage.update();
+
+	createjs.Ticker.setFPS(24);
+	createjs.Ticker.addEventListener("tick", stage);
+}
+</script>
+</head>
+
+<body onload="init();" style="background-color:#D4D4D4">
+	<canvas id="canvas" width="320" height="480" style="background-color:#000000"></canvas>
+</body>
+</html>
