@@ -1,0 +1,312 @@
+﻿<HTML>
+	<HEAD>
+		<TITLE>UnJapanese</TITLE>
+		<LINK rel="stylesheet" type="text/css" href="helpstyle.css">
+		<META name="author" content="joseph.jacir@pokelabo.co.jp">
+		<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
+		<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+		<META http-equiv="Content-Type" content="text/html; charset=UTF-8">		
+	</HEAD>
+	
+	<BODY>
+
+
+<H1>AutoWobble</H1>
+
+<P>Automatically creates bouncing and wobbling keyframe animations<BR>
+自動的にバウンドと揺れるアニメーションキーフレームを作成してくれるツール
+</P>
+
+<DIV id="StretchTestSWF">
+	<object type="application/x-shockwave-flash" data="StretchTest.swf" width="525" height="400">
+			<param name="movie" value="StretchTest.swf" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#ccffcc" />
+			<param name="play" value="true" />
+			<param name="loop" value="true" />
+	</object>
+</DIV>
+
+<HR>
+
+<A name="workflow"></A>
+<H2>Workflow　使い方 / ワークフロー</H2>
+	<OL>
+		<LI> Animate a primary motion - an object moving from one position, rotation, and scale to another. Leave (or create) frames afterward for the bounce.<BR>
+		<DIV id="Demo1SWF">
+			<object type="application/x-shockwave-flash" data="Demo1.swf" width="275" height="80">
+				<param name="movie" value="Demo1.swf" />
+				<param name="quality" value="high" />
+				<param name="bgcolor" value="#CCCCFF" />
+				<param name="play" value="true" />
+				<param name="loop" value="true" />
+			</object>
+		</DIV>
+		
+		一次動きのアニメーションを作って。オブジェクトの位置、回転、とスケールは一つからもう一つまでのアニメーションの作成です。<BR>
+		揺れのために、アニメの終わりの後余地を残して。
+		<IMG src="step1.png">
+		<BR><BR>
+		
+		<LI> Select the last keyframe of the motion (B), and the normal frames following it (arbitrary length)<BR>
+		<IMG src="step2.png"><BR>
+		一次動きの最後のキーフレーム(B)と翌フレームを選択して。長さはなんでも大丈夫です。
+		<BR><BR>
+		
+		<LI> <IMG src="step3.png" class="fll">If using the GUI, adjust the parameters in the SWF panel, or choose a preset. If not using the GUI (i.e. menu or keyboard shortcut), it will use parameters from the last time it was run. This may differ from what is displayed in the GUI.<BR><BR>
+		GUIの利用場合は、引数を調整して。または、プリセットを選択して。<BR>
+		GUIを利用しない場合は、前回の実行の変数を使います。<BR>
+		現在のUIで表現されている値と違う可能性もありますので、ご注意ください。
+		
+		<LI style="clear: both;"> Execute script by pushing the "Wobble!" button, running the command, or using the keyboard shortcut.<BR>「揺れ！」ボタンを押すとスクリプトを実行します。または、コマンドメニュー、キーボードショートカットも利用できます。
+
+	<DIV id="Demo2SWF">
+		<object type="application/x-shockwave-flash" data="Demo2.swf" width="275" height="80">
+			<param name="movie" value="Demo2.swf" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#CCCCFF" />
+			<param name="play" value="true" />
+			<param name="loop" value="true" />
+		</object>
+	</DIV><BR><BR>
+	<IMG src="step4.png">
+	</OL>
+	
+<HR style="clear: both;">
+		
+<A name="install"></A>
+<H2>Installation and setup　インストールとセットアップ</H2>
+
+<P>AutoWobble is now part of PokeAniToolkit. You can <A href="http://ming-test.pokedev.jp/flash_test/gemini/Tools/PokeAniToolbox.exe">install (or reinstall) the entire PokeAniToolkit</A>, or install AutoWobble only by following the directions in <A href="AutoWobble.zip">this zip file</A>. Mac users will have to use the zip file.</P>
+<P>AutoWobbleはPokeAniToolkitの一部になりました。<BR><A href="http://ming-test.pokedev.jp/flash_test/gemini/Tools/PokeAniToolbox.exe">PokeAniToolkitを全部インストールできます</A>。再インストールもかまいません。<BR>または、<A href="AutoWobble.zip">このzipの指示のとおりして</A>、このAutoWobbleだけインストールできます。<BR>
+Mac対応の方はzipのみご利用ください。
+
+<HR>
+
+<H2>Controls コントロール</H2>
+<A name="language"></A>
+<H4>Language　言語 <IMG src="langtoggle.png"></H4>
+<P>The top right button toggles between English and Japanese user interfaces.<BR>
+一番右上のボタンは英語と日本語のUIを切り替えます。</P>
+
+<A name="keyboard"></A>
+<H4>Keyboard / Commandキーボードショートカット / コマンド</H4>
+<P>This function can be run from the Command menu, and the command can be assigned to a keyboard shortcut. When used in this way, it will execute the command with the last used parameters; this may differ from what is currently displayed in the UI.<BR><BR>
+この機能もコマンドメニューから実行させられます。コマンドはキーボードショートカットにも割り当てできます。<BR>
+この使い方は前回の実行の値を使います。現在のUIで表現されている値と違う可能性もありますので、<BR>ご注意ください。</P>
+
+<H3>Keyframes　キーフレーム</H3>
+
+<A name="interval"></A>
+<H4>Interval　期間 <IMG src="intervalslider.png"></H4>
+<P>The frame length of each extreme's keyframe.<BR>
+各揺れの先端の間のフレーム数。</P>
+
+<UL>
+	<LI>Interval = 1	期間 = 1<BR>
+	<IMG src="interval1.png">
+	<DIV id="Demo3-1SWF">
+		<object type="application/x-shockwave-flash" data="Demo3-1.swf" width="275" height="80">
+			<param name="movie" value="Demo3-1.swf" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#CCCCFF" />
+			<param name="play" value="true" />
+			<param name="loop" value="true" />
+		</object>
+	</DIV><BR><BR>
+	<LI>Interval = 3	期間 = 3<BR>
+	<IMG src="interval3.png">
+	<DIV id="Demo3-1SWF">
+		<object type="application/x-shockwave-flash" data="Demo3-3.swf" width="275" height="80">
+			<param name="movie" value="Demo3-3.swf" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#CCCCFF" />
+			<param name="play" value="true" />
+			<param name="loop" value="true" />
+		</object>
+	</DIV><BR><BR>
+	<LI>Interval = 5	期間 = 5<BR>
+	<IMG src="interval5.png">
+	<DIV id="Demo3-1SWF">
+		<object type="application/x-shockwave-flash" data="Demo3-5.swf" width="275" height="80">
+			<param name="movie" value="Demo3-5.swf" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#CCCCFF" />
+			<param name="play" value="true" />
+			<param name="loop" value="true" />
+		</object>
+	</DIV><BR><BR>
+</UL>
+
+<A name="bounce"></A>
+<H4>Bounce %　跳ね返し％</H4>
+<P>The <EM>maximum</EM> bounce amount for position, rotation/skew, scale, and stretch. These can be be controlled more finely with the individual effect % controls.<BR><BR>
+位置、回転/傾斜、スケール、と伸ばしの<B>最高限度</B>。別々の効果％コントロールで細かい調整もできます。</P>
+
+<P class="small">For example, if we animate position only, have position effect at 100% and <B>Bounce % at 60</B>:<BR>
+例えば、位置の効果は100%で、<B>跳ね返し％は60%の場合</B>
+</P>
+<DIV id="Demo4SWF">
+	<object type="application/x-shockwave-flash" data="Demo4.swf" width="275" height="80">
+		<param name="movie" value="Demo4.swf" />
+		<param name="quality" value="high" />
+		<param name="bgcolor" value="#CCCCFF" />
+		<param name="play" value="true" />
+		<param name="loop" value="true" />
+	</object>
+</DIV>
+	
+<A name="decay"></A>
+<H4>Decay　減衰</H4>
+<P>The rate at which the object stops bouncing and returns to the target keyframe. Follows <A href="https://www.desmos.com/calculator/xrabdobdu1" target="desmosgraph">this function</A> (drag the "a" slider).<BR><BR>
+オブジェクトのバウンドが終わって、ターゲットのキーフレームに戻す速度。<BR>
+<A href="https://www.desmos.com/calculator/xrabdobdu1" target="desmosgraph">この数学関数</A>のとおりにします。(「a」スライダーをドラッグしてください。)</P>
+<table border="2">
+  <tr>
+    <td>Decay　減衰</td>
+    <td>Graph グラフ</td>
+    <td>Animation　アニメーション</td>
+  </tr>
+  <tr>
+    <td>23</td>
+    <td><IMG src="decay23.png"></td>
+    <td>	
+		<object type="application/x-shockwave-flash" data="Demo5-23.swf" width="275" height="80">
+			<param name="movie" value="Demo5-23.swf" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#CCCCFF" />
+			<param name="play" value="true" />
+			<param name="loop" value="true" />
+		</object>
+	</td>
+
+  </tr>
+  <tr>
+    <td>50</td>
+    <td><IMG src="decay50.png"></td>
+    <td>
+		<object type="application/x-shockwave-flash" data="Demo5-50.swf" width="275" height="80">
+			<param name="movie" value="Demo5-50.swf" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#CCCCFF" />
+			<param name="play" value="true" />
+			<param name="loop" value="true" />
+		</object>
+	</td>
+  </tr>
+  <tr>
+    <td>88</td>
+    <td><IMG src="decay88.png"></td>
+    <td>
+		<object type="application/x-shockwave-flash" data="Demo5-88.swf" width="275" height="80">
+			<param name="movie" value="Demo5-88.swf" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#CCCCFF" />
+			<param name="play" value="true" />
+			<param name="loop" value="true" />
+		</object>
+	</td>
+  </tr>
+</table>
+
+<A name="easing"></A>
+<H4>Easing　イージング</H4>
+<P>All new tweens are eased by this amount. Alternates between positive and negative.<BR>
+すべての新しいトウィーンはこの値でイージングを付けます。正数と負数の間を行ったり来たりします。<BR>
+<IMG src="easing.png"><BR>
+</P>
+<HR>
+<H3>Effect %　効果％</H3>
+<A name="position"></A>
+<H4>Position, Rotation/Skew, Scale<BR>
+位置、回転/傾斜、スケール</H4>
+<P>A further fraction of the bounce % applied to each attribute. So if bounce is 60% and position is 30%, the position will bounce a maximum of 18% of the primary motion. <BR><BR>
+各プロパティーの跳ね返し％の割合。<BR>たとえば、跳ね返し％が60%で、位置は30%だったら、オブジェクトの位置は元の動きの18%で揺れます。
+<object type="application/x-shockwave-flash" data="Demo6.swf" width="275" height="80">
+	<param name="movie" value="Demo6.swf" />
+	<param name="quality" value="high" />
+	<param name="bgcolor" value="#CCCCFF" />
+	<param name="play" value="true" />
+	<param name="loop" value="true" />
+</object>
+<BR>
+The reason to do this is that it allows you to emphasize one type of motion over another - for example, more rotation bounce than position bounce.<BR><BR>
+使う理由は、他の動きよりも一つのタイプを力説できるようになります。<BR>例えば、位置より、回転のほうが揺れされたい場合はこんな感じで。<BR>
+<object type="application/x-shockwave-flash" data="Demo7.swf" width="275" height="80">
+	<param name="movie" value="Demo7.swf" />
+	<param name="quality" value="high" />
+	<param name="bgcolor" value="#CCCCFF" />
+	<param name="play" value="true" />
+	<param name="loop" value="true" />
+</object>
+
+<A name="stretch"></A>
+<H4>Stretch　伸ばし</H4>
+<P>This works similarly to other effect controls, in that it represents a fraction of the maximum bounce %. However, this is used to control squash and stretch, and is calculated as a proportion of the distance moved (as a percentage of the size of the object). It affects scale (unevenly) based on position's movement, but works in addition to the scale control. Visually, it is a cartoonish bounciness.<BR><BR>
+最大跳ね返し％の割合コントロールなので、これは上記の効果コントロールと似ています。<BR>
+しかし、このコントロールは子どものアニメっぽい「squash and stretch」に対応します。　<BR>
+（オブジェクトのサイズの割合で）動きの距離によって計算されます。<BR>
+位置の動きによって、スケールに影響を及ぼしますが、スケールコントロールに加えて影響を及ぼします。<BR>
+<BR>
+<object type="application/x-shockwave-flash" data="Demo8.swf" width="275" height="80">
+	<param name="movie" value="Demo8.swf" />
+	<param name="quality" value="high" />
+	<param name="bgcolor" value="#CCCCFF" />
+	<param name="play" value="true" />
+	<param name="loop" value="true" />
+</object>
+
+</P>
+<HR>
+<A name="preset"></A>
+<H3>Presets プリセット</H3>
+<P>Because these controls can be too detailed, for convenience it is possible to save your own presets, or to load ones that I have included with the tool. Choose one from the dropdown menu to load. Enter a name into the dropdown menu and press "Save new preset" to save a new one. Press "Del" to delete the currently selected preset.<BR><BR>
+
+上記のコントロールは詳しすぎる可能性もありますので、プリセットを保存できます。または、私が含まれたプリセットも読み込むこともできます。<BR>
+読み込むように、ドロップダウン・メニューから１行を選択して。<BR>
+保存するように、ドロップダウン・メニューにプリセット名を入力して、「プリセット保存」ボタンを押して。<BR>
+削除するように、プリセットを選択して、「消し」ボタンを押して。<BR></P>
+
+<A name="examples"></A>
+<P>Here are some example use cases.<BR>
+以下は、例の使用事例です。</P>
+
+<HR>
+
+<H3>Run　実行</H3>
+<A name="wobble"></A>
+<H4>Wobble! 揺れ！</H4>
+<P>Press this to add the wobble keyframes. <A href="#workflow">Refer to the workflow section for instructions</A>. If an improper keyframe selection is made, you will receive an error alert.<BR><BR>
+このボタンを押すと、揺れのキーフレームを挿入します。<A href="#workflow">ワークフローの指示に参考してください</A>。<BR>
+無効なフレーム範囲が選択されている場合は、エラー通知が出ます。
+</P>
+
+<A name="revert"></A>
+<H4>Revert 戻し</H4>
+<P>When using the keyboard shortcut or command menu, this button is not necessary. However, when using the GUI, Flash's undo command undoes each keyframe one at a time. This takes time and is annoying, so this is a quicker way to undo a wobble motion.<BR><BR>
+キーボードショットカットかコマンドメニューを利用の際、<BR>
+このボタンは必要がありません。<BR>
+しかし、GUIを利用の際は、<BR>
+フラッシュの取り消しコマンドは、新しい揺れキーフレームを一つずつ次々で消します。<BR>
+大変ですので、このボタンのほうが簡単で速くなります。 <BR>
+
+<OL>
+ <LI>Select the original motion's <EM>last keyframe (B)</EM> and the wobble keyframe range <EM>only</EM>. This selection should be the same frames you selected to originally create the wobble.<BR>
+ <IMG src="revert1.png"><BR>
+ 一次動きの最後のキーフレーム（B）と揺れのキーフレーム<EM>だけ</EM>を選択して。<BR>
+ この選択範囲は、最初に揺れのアニメーションを作成したときの選択範囲と同じようにください。
+ <LI>Press the Revert button.<BR>
+ <IMG src="revert2.png"><BR> 
+ 戻しボタンを押して。
+</OL>
+
+Caution: While this button does check for mistakes before running, it is possible to delete the wrong keyframes if your selection is wrong, so please be careful.<BR><BR>
+注意：　実行前に間違いを検出してみますのに、<BR>
+相違のキーフレームを選択すれば、<BR>
+揺れ以外のキーフレームを削除可能性もありますので、<BR>
+ご注意ください。<BR>
+
+</P>
+
+	</BODY>
+</HTML>

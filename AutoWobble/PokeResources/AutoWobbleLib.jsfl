@@ -5,7 +5,7 @@
 	Automatic bouncy animation. BOIOIOIOING!!
 	
 	Workflow:
-		1) Animate a primary motion - an object moving from one position, rotation, and scale to another. Leave (or create) empty keyframes afterward for the bounce.
+		1) Animate a primary motion - an object moving from one position, rotation, and scale to another. Leave (or create) frames afterward for the bounce.
 		
 		2) Select the last keyframe of the motion, and the empty keyframes following it (arbitrary length)
 		
