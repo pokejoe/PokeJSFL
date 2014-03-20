@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CreateJS export from Boobs</title>
+
+<script src="http://code.createjs.com/easeljs-0.6.0.min.js"></script>
+<script src="http://code.createjs.com/tweenjs-0.4.0.min.js"></script>
+<script src="http://code.createjs.com/movieclip-0.6.0.min.js"></script>
+<script src="http://code.createjs.com/preloadjs-0.3.0.min.js"></script>
+<script src="Boobs.js"></script>
+
+<script>
+var canvas, stage, exportRoot;
+
+function init() {
+	canvas = document.getElementById("canvas");
+	images = images||{};
+
+	var manifest = [
+		{src:"images/BG.jpg", id:"BG"},
+		{src:"images/p01_BangClosest.png", id:"p01_BangClosest"},
+		{src:"images/p02_BangSpearFront.png", id:"p02_BangSpearFront"},
+		{src:"images/p03_SplitEnd.png", id:"p03_SplitEnd"},
+		{src:"images/p04_LeftBoob.png", id:"p04_LeftBoob"},
+		{src:"images/p05_RightBoob.png", id:"p05_RightBoob"},
+		{src:"images/p06_ThighDanglyR.png", id:"p06_ThighDanglyR"},
+		{src:"images/p07_Loincloth.png", id:"p07_Loincloth"},
+		{src:"images/p08_EyesClosed.png", id:"p08_EyesClosed"},
+		{src:"images/p09_EyesMid.png", id:"p09_EyesMid"},
+		{src:"images/p10_EyesOpen.png", id:"p10_EyesOpen"},
+		{src:"images/p10b_SpearArm.png", id:"p10b_SpearArm"},
+		{src:"images/p11_FlatChest.png", id:"p11_FlatChest"},
+		{src:"images/p11b_DiagonalHair.png", id:"p11b_DiagonalHair"},
+		{src:"images/p11c_FurthestHair.png", id:"p11c_FurthestHair"},
+		{src:"images/p12_Legs.png", id:"p12_Legs"},
+		{src:"images/p12b_SpearBack.png", id:"p12b_SpearBack"},
+		{src:"images/p13_ForearmR.png", id:"p13_ForearmR"},
+		{src:"images/p14_BackPonytail.png", id:"p14_BackPonytail"}
+	];
+
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload", handleFileLoad);
+	loader.addEventListener("complete", handleComplete);
+	loader.loadManifest(manifest);
+}
+
+function handleFileLoad(evt) {
+	if (evt.item.type == "image") { images[evt.item.id] = evt.result; }
+}
+
+function handleComplete() {
+	exportRoot = new lib.Boobs();
+
+	stage = new createjs.Stage(canvas);
+	stage.addChild(exportRoot);
+	stage.update();
+
+	createjs.Ticker.setFPS(24);
+	createjs.Ticker.addEventListener("tick", stage);
+}
+</script>
+</head>
+
+<body onload="init();" style="background-color:#D4D4D4">
+	<canvas id="canvas" width="320" height="480" style="background-color:#ffffff"></canvas>
+</body>
+</html>
