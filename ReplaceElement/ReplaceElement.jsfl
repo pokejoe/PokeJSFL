@@ -3,7 +3,7 @@
 	Replaces element 0 on the selected frames with the selected library item.
 	選択されたフレームの0番エレメントを選択されたライブラリーアイテムで変換します。
 	
-	v1.1
+	v1.2
 	Copyright 5 November 2013 Joseph Jacir
 */
 
@@ -67,6 +67,11 @@ for (var i = 0; i < sel.length; i += 3) { //for every selected range
 function replaceRange(layer, start, end) {
 	//If the end is out of range (due to sloppy user selection) set it to the last frame of the layer.
 	curlayer = tim.layers[layer];	//Derive layer object from layer index number
+	
+	//Copy name to layer
+	var namecopy = libi.name.split("/");
+	namecopy = namecopy[namecopy.length-1];
+	curlayer.name = namecopy;
 	
 	if (end > curlayer.frames.length) {
 		end = curlayer.frames.length;
