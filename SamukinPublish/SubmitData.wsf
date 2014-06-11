@@ -1,0 +1,37 @@
+<job id="SubmitSamukinProj">
+
+	<script language="JScript">
+		//A Samukin project is held with parts in three separate folders, but they need to be delivered to one place. So this copies the disparate parts from the appropriate work folders automatically and puts them on the server.
+		
+		var fso		= new ActiveXObject("Scripting.FileSystemObject");
+		var shell	= new ActiveXObject("WScript.Shell");
+		var objshell = new ActiveXObject("shell.application");
+		
+		confirm = shell.Popup("Copy this Samukin project to server?\nこのサムキンプロジェクトをサーバーまでコピーしますか？", 0, "Confirm?", 1);
+		
+		if (confirm == 1) {
+			var deliveryfolder = "\\\\192.168.10.241\\pokefs2\\02.海外アプリ\\19.戦乱のサムライキングダム\\svn管理外\\01.共有資料\\03.演出・アニメーション\\12.イベントOP\\";
+			var eventname = shell.CurrentDirectory.split("\\");
+			eventname = eventname[eventname.length-1];
+			
+			try {	//Create remote folder or quit
+				var remoteproj = fso.CreateFolder(deliveryfolder + "\\" + eventname);
+			} catch(err) {
+				shell.Popup("Couldn't create remote folder. Already exists? Delete and try again.\nサーバー上フォルダを作成できませんでした。存在しますか？削除して再試行してください。");
+				objshell.Explore(deliveryfolder);
+				WScript.quit(1);
+			}
+			
+			var workproj = shell.SpecialFolders("Desktop") + "\\LWFS_work\\" + eventname;
+			var outputproj = shell.SpecialFolders("Desktop") + "\\LWFS_work_output\\html5\\list\\" + eventname;
+			
+			//Tests for an empty folder above, but just to be safe overwriting is disabled. This will cause an error if the files and folders already exist at the destination.
+			fso.GetFolder(outputproj).Copy(remoteproj + "\\01.本番", false);
+			fso.GetFolder("02.画像").Copy(remoteproj + "\\02.画像", false);
+			fso.GetFolder(workproj).Copy(remoteproj + "\\03.作業", false);
+			
+			objshell.Explore(remoteproj.Path);
+			//objshell.Explore(deliveryfolder);
+		}
+	</script>
+</job>

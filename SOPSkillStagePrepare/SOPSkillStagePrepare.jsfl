@@ -1,8 +1,8 @@
 ﻿/*
-	SOPSkillStagePrepare v1.31
+	SOPSkillStagePrepare v1.311
 	When creating a skill animation for SOP, the image references must be replaced in raidBattle.html. This does the necessary transformations. 
 	
-		*Depends on JJFileUtils.jsfl being present in Flash Config Directory /PokeResources/
+		*Depends on JJFileUtils.jsfl v2.2+ being present in Flash Config Directory /PokeResources/
 	
 		*ASSUMES A CORRECTLY FORMATTED skillStage###.fla AND SKILL DIRECTORY STRUCTURE. 
 			CharacterMC layer must exist on the stage

@@ -1,5 +1,5 @@
 ﻿/*
-	JJFileUtils v2.2
+	JJFileUtils v3.0
 	File utility functions for JSFL on Windows. Tested on Flash CS6.
 	Copyright 2013 Joseph Jacir
 	
@@ -7,7 +7,11 @@
 		/#include JJFileUtils
 		fl.runScript(fl.configURI + "PokeResources/JJFileUtils.jsfl");
 	
-	WARNING - upOne has been updated to chop greedily, where as old versions would only remove the terminal / if handed a URI ending in /. It will also automatically add the terminal / to any returned path. This means that file management functions should be CAREFULLY inspected to make sure files that use this updated function are not placed in parent directories, and don't manually insert a / after paths using this function.
+	v3.0
+	Added itemName(path).
+	
+	v2.2
+	WARNING - upOne has been updated to chop greedily, where as old versions would only remove the terminal "/" if handed a URI ending in "/". It will also automatically add the terminal "/" to any returned path. This means that file  management functions which are older than the 2.2 update should be CAREFULLY inspected to make sure files that use this updated function are not placed in parent directories, and don't manually insert a "/" after paths.
 */
 
 //#include LocalUserSettings
@@ -115,5 +119,18 @@ function uploadFTP(localpath, remotedir) {
 	
 	//Execute the batch file to perform the upload.
 	FLfile.runCommandLine('"' + winPath(upbatchloc) + '"');
+}
+
+function itemName(path) {
+	//Accepts a valid path URI, returns the name of the item or folder only.
+	//E.g. "file:///C|/Users/user/Desktop/something.txt" -> "something.txt" 
+	//     "file:///C|/Users/user/Desktop/" -> "Desktop"
+	
+	if (path[path.length-1] != "/") {	//In case of a file
+		return path.slice(path.lastIndexOf("/",path.length-1)+1);	
+	} else {	//In case of a folder
+		return itemName(path.substr(0,path.length-1));
+	}
+
 }
 

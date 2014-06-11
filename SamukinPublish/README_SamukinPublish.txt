@@ -1,0 +1,1 @@
+﻿The JSFL file goes into the Flash scripts folder as normal. The two Windows shell scripts (.wsf) are used for setting up a new Samukin project in your local directory, and for submitting it to the server. They should go in Projects/Samukin/Events/NewSamukinEvent.wsf and Projects/Samukin/Events/_Generic/SubmitData.wsf

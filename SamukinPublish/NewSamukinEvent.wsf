@@ -1,0 +1,43 @@
+<job id="SetupSamukinFolders">
+	<script language="VBScript">
+		Function VBInputBox(promptText)
+			VBInputBox = InputBox(promptText)
+		End Function
+	</script>
+	
+	<script language="JScript">
+		//Sets up folders for a new Samukin project in the appropriate places, and links the various folders via shortcuts. 
+		
+		var eventname = VBInputBox("Event Name\n新規イベント名")
+		if (!eventname) {
+			WScript.echo("No name; cancelling.\nイベント名が入力せれていない。キャンセルします。");
+		} else {
+			var fso		= new ActiveXObject("Scripting.FileSystemObject");
+			var shell	= new ActiveXObject("WScript.Shell");
+			
+			try {	//Make project folder or quit
+				var projfolder = fso.CreateFolder(eventname);
+				var workproj = fso.CreateFolder(shell.SpecialFolders("Desktop") + "\\LWFS_work\\" + eventname);
+				var outputproj = fso.CreateFolder(shell.SpecialFolders("Desktop") + "\\LWFS_work_output\\html5\\list\\" + eventname);
+			} catch(err) {
+				WScript.echo("Error creating folder here, or in LWFS_work or LWFS_work_output. Already exists? \n新規フォルダをこちらの保存先に作成できませんでした。または、LWFS_workかLWFS_work_outputフォルダに作成できませんでした。存在しますか？");
+				WScript.quit(1);
+			}
+			
+			fso.CopyFile("_Generic\\SubmitData.wsf", projfolder + "\\SubmitData.wsf");
+			
+			shell.CurrentDirectory = projfolder;
+			var honban = shell.CreateShortcut("01.本番.lnk");
+				honban.TargetPath = outputproj;
+				honban.Save();
+			var gazou = fso.CreateFolder("02.画像");
+			var compfolder = fso.CreateFolder(workproj + "\\compressed");
+			var compshort = shell.CreateShortcut(gazou + "\\compressed.lnk");
+				compshort.TargetPath = compfolder;
+				compshort.Save();
+			var sagyou = shell.CreateShortcut("03.作業.lnk");
+				sagyou.TargetPath = workproj;
+				sagyou.Save();
+		}
+   </script>
+</job>
