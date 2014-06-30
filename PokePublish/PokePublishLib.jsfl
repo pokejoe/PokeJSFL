@@ -1,10 +1,13 @@
 ﻿/*
-	PokePublish v1.0
+	PokePublish v1.1
 	A replacement for the default CreateJS Publish command, that includes all adjustments necessary to prepare the file for Pokelabo games.
 	
 	Copyright 2013 Joseph Jacir
 	2013-25-06 ~ 2013-08-07
 	dev time: 10hr including control panel, not including conversion code (wrote that previously for site-based converter)
+	
+	Changelog:
+		v1.1 - Added insertion of next_url variable into the HTML; no longer needs to be included in the JS. According to Gu-san it should always have been this way, which makes me worry about every file we've done up until now...
 */
 
 /////////Declarations and Definitions
@@ -26,7 +29,7 @@ function upOne(path) {
 var chunks = new Array();	
 	chunks[0] = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>OLDTITLE</title>\n<!-- スマホサイズにfit -->\n<meta id="viewport" name="viewport" content="width=320,initial-scale=1,minimum-scale=1,maximum-scale=1">\n<!--androidはこっち <meta name="viewport" content="initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" /> -->\n<!-- 電話番号認識の無効化-->\n<meta name="format-detection" content="telephone=no"/>\n<meta name="apple-mobile-web-app-capable" content="yes">\n<style>\n	html {\n		background-color:#000000;\n		width: 100%;\n		height: 100%;\n		margin: 0 auto; padding: 0;\n		display: table;\n	}\n	body {\n		text-align:center;\n		vertical-align:middle;\n		margin: 0 auto; padding: 0;\n		display: table-cell;\n	}\n	a{\n	    -webkit-touch-callout:none;\n	    -webkit-tap-highlight-color:rgba(0,0,0,0);\n	}\n	canvas {\n		vertical-align:middle;\n		border:0px;\n		margin:0px;\n	}\n	#loading {\n		position:absolute;\n		overflow:auto;\n		top:50%;\n		left:50%;\n		text-align:center;\n		height: 24px;\n		width: 24px;\n		margin-top:-12px;\n		margin-left:-12px;\n	}\n</style>';
 	chunks[1] = "\n\n	initTouch();";
-	chunks[2] = "\n	document.getElementById('loading').style.visibility=\"hidden\";\n	document.getElementById('loading').style.display=\"none\";";
+	chunks[2] = "\n	next_url = 'http://www.google.com';\n\n	document.getElementById('loading').style.visibility=\"hidden\";\n	document.getElementById('loading').style.display=\"none\";";
 	chunks[3] = '\n	//▼androidはコメントアウト 画質を上げる\n	defultWidth  = OLDWIDTH;\n	defultHeight  = OLDHEIGHT;\n	if(typeof window.devicePixelRatio === "undefined"){\n		devicePixelRatio = 1;\n	}else{\n		devicePixelRatio = window.devicePixelRatio;\n	}\n	exportRoot.setTransform(0,0,devicePixelRatio,devicePixelRatio);\n	document.getElementById(\'canvas\').width = defultWidth * devicePixelRatio; \n	document.getElementById(\'canvas\').height = defultHeight  * devicePixelRatio; \n	scale =defultWidth  / (defultWidth *  devicePixelRatio) ;\n	document.getElementById(\'viewport\').content= "width="+defultWidth*devicePixelRatio+",initial-scale="+scale+",minimum-scale="+scale+",maximum-scale="+scale; \n	//▲androidはコメントアウト';
 	chunks[4] = '<body onload="init();" style="background-color:#000000">'
 	chunks[5] = '\n	<div id="loading"><img src=\'images/loader.gif\' /></div>\n\t';
@@ -66,7 +69,7 @@ function convertHTML(title, raw, snap) {
 	clean = temp[0] + "loader.loadManifest(manifest);" + chunks[1] + temp[1];	//re-insert split search string, plus the new line
 	
 	
-////////Step 2: At the top of handleComplete():, copy in the two lines about loading.
+////////Step 2: At the top of handleComplete():, copy in the two lines about loading, and next_url
 	temp = clean.split("function handleComplete() {");
 	
 	if(temp[1] == undefined) {alert("Error: \n\nhandleComplete()の欠落。\n\n Missing handleComplete() function in raw file");  return;}
